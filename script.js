@@ -181,6 +181,7 @@ class Space {
         // this.numOfSpacesToTop = rowNum;
         // this.numOfSpacesToBottom = (5 - rowNum) + 1;
         this.isTaken = false;
+        this.isTakenShipName = "";
         this.isMiss = false;
         this.isHit = false;
     }
@@ -218,10 +219,15 @@ for (let row = 1; row <= 5; row++) {
     for (let col = 1; col <= 5; col++) {
         let newSpace = new Space(col, row);
 
+        //Use spaceNumPlay to add ID features for each new space object
         newSpace.spaceNum = spaceNumComp;
         newSpace.domID = `cp-${spaceNumComp}`;
         spaceNumComp++;
 
+        //Set if the space is on the left or right side of the board
+        (col === 1 || col === 5) ? newSpace.isEndCol = true : newSpace.isEndCol = false;
+
+        //Push new object into player space array
         compSpaceArray.push(newSpace);
     }
 }
@@ -272,6 +278,7 @@ function selectSpace(ev) {
         let selectedNumber = convertDomToArrID(ev.target);
         markSpaceTakenArr(playerSpaceArray, selectedNumber);
         shipsArrPlay[shipIndex].spaceArr.push(selectedNumber);
+        playerSpaceArray[selectedNumber].isTakenShipName = shipsArrPlay[shipIndex].name;
 
         for (let i = 2; i <= shipSize; i++) {
             selectedNumber = moveOverOneSpace(selectedNumber);
@@ -279,10 +286,10 @@ function selectSpace(ev) {
             let shipID = `#pl-${String(selectedNumber)}`;
             markSpaceTakenDom(document.querySelector(shipID), "player-setup");
             shipsArrPlay[shipIndex].spaceArr.push(selectedNumber);
+            playerSpaceArray[selectedNumber].isTakenShipName = shipsArrPlay[shipIndex].name;
         }
 
         shipsArrPlay[shipIndex].shipSetup = true;
-        console.log(shipsArrPlay)
 
         resetDefaultVariables();
 
@@ -321,12 +328,16 @@ function resetDefaultVariables() {
 //COMPUTER GAME SETUP
 //Setting up computer ships
 
+
 //Add event listeners to computer gameboard
 const compBoardSpaces = document.querySelectorAll(".comp-space");
 compBoardSpaces.forEach(space => space.addEventListener("click", takeShot));
 
 //MAKING MOVES
-
+/* BELOW FOR TESTING, REMOVE AFTER FINISHED */
+compSpaceArray[0].isTaken = true;
+compSpaceArray[1].isTaken = true;
+console.log(compSpaceArray);
 
 //Player moves
 function takeShot(ev) {
@@ -349,11 +360,55 @@ function takeShot(ev) {
 }
 
 //Computer moves
-function computerMoves(ev) {
-    console.log("Computer makes a move.")
+let potentialCompMoves = [];
+
+for (let i = 0; i < playerSpaceArray.length; i++) {
+    potentialCompMoves.push(playerSpaceArray[i].spaceNum);
+}
+
+function computerMoves() {
+    let numOfGuesses = potentialCompMoves.length;
+    let randomNumber = Math.floor(Math.random() * (numOfGuesses));
+    let randomGuess = potentialCompMoves[randomNumber];
+
+    potentialCompMoves.splice(randomNumber, 1);
+
+    let domSpaceID = `#pl-${randomGuess}`
+    let domSpace = document.querySelector(domSpaceID);
+
+    if (playerSpaceArray[randomGuess].isTaken === false) {
+        domSpace.classList.add("miss");
+        playerSpaceArray[randomGuess].isMiss = true;
+    } else if (playerSpaceArray[randomGuess].isTaken === true) {
+        domSpace.classList.remove("player-setup");
+        domSpace.classList.add("hit");
+        playerSpaceArray[randomGuess].isHit = true;
+        let hitShip = playerSpaceArray[randomGuess].isTakenShipName;
+        checkIfSank(hitShip, randomGuess);
+    }
 }
 
 //ENDING GAME
+let playerWins = false;
+let compWins = false;
+
+function checkIfSank(hitShip, randomGuess) {
+    let hitIndex = shipsArrPlay.findIndex(ship => ship.name === hitShip);
+    shipsArrPlay[hitIndex].hitsArr.push(randomGuess);
+    
+    if (shipsArrPlay[hitIndex].hitsArr.length === shipsArrPlay[hitIndex].spaceArr.length) {
+        shipsArrPlay[hitIndex].isSunk = true;
+        checkIfWins();
+    }
+}
+
+function checkIfWins() {
+    if (shipsArrPlay.every(ship => ship.isSunk === true)) {
+        compWins = true;
+    } else if (shipsArrComp.every(ship => ship.isSunk === true)) {
+        playerWins = true;
+    }
+}
 
 //RESETTING GAME
 //moveCount = 0;
