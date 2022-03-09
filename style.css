@@ -1,0 +1,45 @@
+html {
+    background: url(images/water-background.jpeg) no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+
+    font-family: sans-serif;
+}
+
+h1 {
+    text-align: center;
+}
+
+.board-space {
+    padding: 5px;
+    margin: 5px;
+    width: 5vw;
+    height: 5vh;
+    border: 1px black solid;
+}
+
+.row-1, .row-2, .row-3, .row-4, .row-5 {
+    display: flex;
+    justify-content: center;
+}
+
+#board-divider {
+    padding: 5px;
+    background-color: gray;
+    width: 40%;
+    margin: 0 auto;
+}
+
+.player-setup {
+    background-color: blue;
+}
+
+.hit {
+    background-color: red;
+}
+
+.miss {
+    background-color: gray;;
+}

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battleship</title>
+    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Battleship</h1>
+    <div id="comp-board">
+        <div class="row-1">
+            <div class="board-space comp-space" id="cp-0"></div>
+            <div class="board-space comp-space" id="cp-1"></div>
+            <div class="board-space comp-space" id="cp-2"></div>
+            <div class="board-space comp-space" id="cp-3"></div>
+            <div class="board-space comp-space" id="cp-4"></div>
+        </div>
+        <div class="row-2">
+            <div class="board-space comp-space" id="cp-5"></div>
+            <div class="board-space comp-space" id="cp-6"></div>
+            <div class="board-space comp-space" id="cp-7"></div>
+            <div class="board-space comp-space" id="cp-8"></div>
+            <div class="board-space comp-space" id="cp-9"></div>
+        </div>
+        <div class="row-3">
+            <div class="board-space comp-space" id="cp-10"></div>
+            <div class="board-space comp-space" id="cp-11"></div>
+            <div class="board-space comp-space" id="cp-12"></div>
+            <div class="board-space comp-space" id="cp-13"></div>
+            <div class="board-space comp-space" id="cp-14"></div>
+        </div>
+        <div class="row-4">
+            <div class="board-space comp-space" id="cp-15"></div>
+            <div class="board-space comp-space" id="cp-16"></div>
+            <div class="board-space comp-space" id="cp-17"></div>
+            <div class="board-space comp-space" id="cp-18"></div>
+            <div class="board-space comp-space" id="cp-19"></div>
+        </div>
+        <div class="row-5">
+            <div class="board-space comp-space" id="cp-20"></div>
+            <div class="board-space comp-space" id="cp-21"></div>
+            <div class="board-space comp-space" id="cp-22"></div>
+            <div class="board-space comp-space" id="cp-23"></div>
+            <div class="board-space comp-space" id="cp-24"></div>
+        </div>
+    </div>
+    <div id="board-divider"></div>
+    <div id="player-board">
+        <div class="row-1">
+            <div class="board-space player-space" id="pl-0"></div>
+            <div class="board-space player-space" id="pl-1"></div>
+            <div class="board-space player-space" id="pl-2"></div>
+            <div class="board-space player-space" id="pl-3"></div>
+            <div class="board-space player-space" id="pl-4"></div>
+        </div>
+        <div class="row-2">
+            <div class="board-space player-space" id="pl-5"></div>
+            <div class="board-space player-space" id="pl-6"></div>
+            <div class="board-space player-space" id="pl-7"></div>
+            <div class="board-space player-space" id="pl-8"></div>
+            <div class="board-space player-space" id="pl-9"></div>
+        </div>
+        <div class="row-3">
+            <div class="board-space player-space" id="pl-10"></div>
+            <div class="board-space player-space" id="pl-11"></div>
+            <div class="board-space player-space" id="pl-12"></div>
+            <div class="board-space player-space" id="pl-13"></div>
+            <div class="board-space player-space" id="pl-14"></div>
+        </div>
+        <div class="row-4">
+            <div class="board-space player-space" id="pl-15"></div>
+            <div class="board-space player-space" id="pl-16"></div>
+            <div class="board-space player-space" id="pl-17"></div>
+            <div class="board-space player-space" id="pl-18"></div>
+            <div class="board-space player-space" id="pl-19"></div>
+        </div>
+        <div class="row-5">
+            <div class="board-space player-space" id="pl-20"></div>
+            <div class="board-space player-space" id="pl-21"></div>
+            <div class="board-space player-space" id="pl-22"></div>
+            <div class="board-space player-space" id="pl-23"></div>
+            <div class="board-space player-space" id="pl-24"></div>
+        </div>
+    </div>
+    <button class="player-ship" id="destroyer">
+        <img src="images/destroyer.gif" alt="picture of destroyer ship">
+    </button>
+    <button class="player-ship" id="submarine">
+        <img src="images/sub.gif" alt="picture of submarine">
+    </button>
+    <button class="player-ship" id="battleship">
+        <img src="images/battleship.gif" alt="picture of battleship">
+    </button>
+    <button id="start-game">Start Game</button>
+    <button id="reset-game">Reset Game</button>
+    <button class="direction" id="up">&#8593;</button>
+    <button class="direction" id="right">&#8594;</button>
+    <button class="direction" id="down">&#8595;</button>
+    <button class="direction" id="left">&#8592;</button>
+</body>
+</html>
