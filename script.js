@@ -92,82 +92,36 @@ const shipsArrPlay = [
     new Ship("battleship", 4)
 ];
 
-//Use same constructor and variables to set up array of ship objects (COMPUTER)
+//Use same constructor to set up array of ship objects (COMPUTER)
 const shipsArrComp = [
     new Ship("destroyer", 2),
     new Ship("submarine", 3),
     new Ship("battleship", 4)
 ];
 
-//b) Set up array of direction objects
+//b) Set up array of direction objects to move around the board
 const directionsArr = [
     {
         name: "right",
         numSpaces: 1,
-        // availAdjacentSpaces: 0,
-        // updateSpaceCount: function(arr, currentSpace) {
-        //     let count = 0;
-        //     let maxNumberOfSpaces = arr[currentSpace].numOfSpacesToRight;
-        //     //Count spaces (including current) until you hit a taken space, or the right end of the board.
-        //     while (!arr[currentSpace].isTaken && (count < maxNumberOfSpaces)) {
-        //         count++;
-        //         currentSpace += this.numSpaces;
-        //     }
-        //     this.availAdjacentSpaces = count;
-        // }
+        spaceRef: "numOfSpacesToRight"
     },
     {
         name: "left",
         numSpaces: -1,
-        // availAdjacentSpaces: 0,
-        // updateSpaceCount: function(arr, currentSpace) {
-        //     let count = 0;
-        //     let maxNumberOfSpaces = arr[currentSpace].numOfSpacesToLeft;
-        //     //Count spaces (including current) until you hit a taken space, or the right end of the board.
-        //     while (!arr[currentSpace].isTaken && (count < maxNumberOfSpaces)) {
-        //         count++;
-        //         currentSpace += this.numSpaces;
-        //     }
-        //     this.availAdjacentSpaces = count;
-        // }
+        spaceRef: "numOfSpacesToLeft"
     },
     {
         name: "up",
         numSpaces: -5,
-        // availAdjacentSpaces: 0,
-        // updateSpaceCount: function(arr, currentSpace) {
-        //     let count = 0;
-        //     let maxNumberOfSpaces = arr[currentSpace].numOfSpacesToTop;
-        //     //Count spaces (including current) until you hit a taken space, or the right end of the board.
-        //     while (!arr[currentSpace].isTaken && (count < maxNumberOfSpaces)) {
-        //         count++;
-        //         currentSpace += this.numSpaces;
-        //     }
-        //     this.availAdjacentSpaces = count;
-        // }
+        spaceRef: "numOfSpacesToTop"
     },
     {
         name: "down",
         numSpaces: 5,
-        // availAdjacentSpaces: 0,
-        // updateSpaceCount: function(arr, currentSpace) {
-        //     let count = 0;
-        //     let maxNumberOfSpaces = arr[currentSpace].numOfSpacesToBottom;
-        //     //Count spaces (including current) until you hit a taken space, or the right end of the board.
-        //     while (!arr[currentSpace].isTaken && (count < maxNumberOfSpaces)) {
-        //         count++;
-        //         currentSpace += this.numSpaces;
-        //     }
-        //     this.availAdjacentSpaces = count;
-        // }
+        spaceRef: "numOfSpacesToBottom"
     }
 ]
-
-// function refreshAllSpaceCount(arr, spaceID) {
-//     directionsArr.forEach(direction => direction.updateSpaceCount(arr, spaceID));
-//     console.log(directionsArr);
-// }
-
 
 //c) Use a constructor to set up array of board space objects (PLAYER)
 class Space {
@@ -175,21 +129,70 @@ class Space {
         this.spaceNum = 0;
         this.domID = "";
         this.colNum = colNum;
-        // this.numOfSpacesToLeft = colNum;
-        // this.numOfSpacesToRight = (5 - colNum) + 1;
         this.rowNum = rowNum;
-        // this.numOfSpacesToTop = rowNum;
-        // this.numOfSpacesToBottom = (5 - rowNum) + 1;
+        this.numOfSpacesToLeft = colNum - 1;
+        this.numOfSpacesToRight = 5 - colNum;
+        this.numOfSpacesToTop = rowNum - 1;
+        this.numOfSpacesToBottom = 5 - rowNum;
         this.isTaken = false;
         this.isTakenShipName = "";
         this.isMiss = false;
         this.isHit = false;
     }
+
+    updateSurroundingSpace(arr) {
+        //While loops to count spaces until you hit a taken space, or a side of the board
+        //RIGHT
+        let countRight = 0;
+        let currentSpace = this.spaceNum;
+
+        while (countRight < 5 - this.colNum) {
+            currentSpace += directionsArr[0].numSpaces;
+            if (arr[currentSpace].isTaken) {break};
+            countRight++;
+        }
+        this.numOfSpacesToRight = countRight;
+
+        //LEFT
+        let countLeft = 0;
+        currentSpace = this.spaceNum;
+
+        while (countLeft < this.colNum - 1) {
+            currentSpace += directionsArr[1].numSpaces;
+            if (arr[currentSpace].isTaken) {break};
+            countLeft++;
+        }
+        this.numOfSpacesToLeft = countLeft;
+
+        //TOP
+        let countTop = 0;
+        currentSpace = this.spaceNum;
+
+        while (countTop < this.rowNum - 1) {
+            currentSpace += directionsArr[2].numSpaces;
+            if (arr[currentSpace].isTaken) {break};
+            countTop++;
+        }
+        this.numOfSpacesToTop = countTop;
+
+        //BOTTOM
+        let countBottom = 0;
+        currentSpace = this.spaceNum;
+
+        while (countBottom < 5 - this.rowNum) {
+            currentSpace += directionsArr[3].numSpaces;
+            if (arr[currentSpace].isTaken) {break};
+            countBottom++;
+        }
+        this.numOfSpacesToBottom = countBottom;
+    }
 }
 
+//Set up empty player array
 const playerSpaceArray = [];
-let spaceNumPlay = 0;
 
+//Use constructor to loop through planned rows and columns to player array
+let spaceNumPlay = 0;
 for (let row = 1; row <= 5; row++) {
     for (let col = 1; col <= 5; col++) {
         let newSpace = new Space(col, row);
@@ -207,14 +210,10 @@ for (let row = 1; row <= 5; row++) {
     }
 }
 
-/* REMOVE NEXT TWO LINES AFTER TESTING */
-// refreshAllSpaceCount(playerSpaceArray, 5);
-// console.log(directionsArr)
-
-//Use same constructor to set up array of board space objects (COMPUTER)
+//Use same constructor & process to set up array of board space objects (COMPUTER)
 const compSpaceArray = [];
-let spaceNumComp = 0;
 
+let spaceNumComp = 0;
 for (let row = 1; row <= 5; row++) {
     for (let col = 1; col <= 5; col++) {
         let newSpace = new Space(col, row);
@@ -232,11 +231,12 @@ for (let row = 1; row <= 5; row++) {
     }
 }
 
-//PLAYER SIDE SETUP
+//PLAYER SIDE BOARD SETUP
 //1. Set up ship positions
 //a. Select ship to position
 const playerShips = document.querySelectorAll(".player-ship");
 playerShips.forEach(ship => ship.addEventListener("click", selectShip));
+
 let shipSize;
 let shipIndex;
 
@@ -272,26 +272,15 @@ playerBoardSpaces.forEach(space => space.addEventListener("click", selectSpace))
 
 function selectSpace(ev) {
     ev.preventDefault();
+    let validPlacement = false;
 
+    //Validate that user has selected required inputs (ship & direction), and that ship has not been set up already.
     if (!!(directionIndex + 1) && shipsArrPlay[shipIndex].shipSelected && !shipsArrPlay[shipIndex].shipSetup) {       
-        markSpaceTakenDom(ev.target, "player-setup");
-        let selectedNumber = convertDomToArrID(ev.target);
-        markSpaceTakenArr(playerSpaceArray, selectedNumber);
-        shipsArrPlay[shipIndex].spaceArr.push(selectedNumber);
-        playerSpaceArray[selectedNumber].isTakenShipName = shipsArrPlay[shipIndex].name;
-
-        for (let i = 2; i <= shipSize; i++) {
-            selectedNumber = moveOverOneSpace(selectedNumber);
-            markSpaceTakenArr(playerSpaceArray, selectedNumber);
-            let shipID = `#pl-${String(selectedNumber)}`;
-            markSpaceTakenDom(document.querySelector(shipID), "player-setup");
-            shipsArrPlay[shipIndex].spaceArr.push(selectedNumber);
-            playerSpaceArray[selectedNumber].isTakenShipName = shipsArrPlay[shipIndex].name;
+        //Validate that the size of the ship will fit in the direction selected. 
+        let moveLengthValid = validateMoveLength(ev.target, playerSpaceArray, directionIndex, shipSize);
+        if (moveLengthValid) {
+            validPlacement = true;
         }
-
-        shipsArrPlay[shipIndex].shipSetup = true;
-
-        resetDefaultVariables();
 
     } else if (shipsArrPlay[shipIndex].shipSetup) {
         alert("You have already set up this ship, please select an available ship.");
@@ -299,7 +288,46 @@ function selectSpace(ev) {
     else {
         alert("Please select a ship and a direction before selecting a starting space.");
     }
+
+    //If ship in a valid placement, set the ship in that space.
+    if (validPlacement) {
+        setShip(ev.target, "player-setup", playerSpaceArray, shipsArrPlay, shipIndex);
+        resetDefaultVariables();
+    } else {
+        alert("The ship will not fit in the selected direction, please choose another direction or another space.");
+    }
         
+}
+
+function validateMoveLength(targetCell, targetArray, directionIndex, shipSize) {
+    let selectedNumber = convertDomToArrID(targetCell);
+    targetArray[selectedNumber].updateSurroundingSpace(targetArray);
+    let availableSpace = targetArray[selectedNumber][directionsArr[directionIndex].spaceRef];
+    if (availableSpace >= (shipSize - 1)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function setShip(targetCell, newDomClass, targetSpaceArray, targetShipsArray, shipIndex) {
+    markSpaceTakenDom(targetCell, newDomClass);
+    let selectedNumber = convertDomToArrID(targetCell);
+    markSpaceTakenArr(targetSpaceArray, selectedNumber);
+    targetShipsArray[shipIndex].spaceArr.push(selectedNumber);
+    targetSpaceArray[selectedNumber].isTakenShipName = targetShipsArray[shipIndex].name;
+
+    for (let i = 2; i <= targetShipsArray[shipIndex].length; i++) {
+        //Set selected number to be one space over in specified direction
+        selectedNumber = moveOverOneSpace(selectedNumber);
+        markSpaceTakenArr(targetSpaceArray, selectedNumber);
+        let shipID = `#pl-${String(selectedNumber)}`;
+        markSpaceTakenDom(document.querySelector(shipID), newDomClass);
+        targetShipsArray[shipIndex].spaceArr.push(selectedNumber);
+        targetSpaceArray[selectedNumber].isTakenShipName = targetShipsArray[shipIndex].name;
+    }
+
+    targetShipsArray[shipIndex].shipSetup = true;
 }
 
 function markSpaceTakenDom(element, newClass) {
@@ -327,20 +355,38 @@ function resetDefaultVariables() {
 
 //COMPUTER GAME SETUP
 //Setting up computer ships
+/* BELOW FOR TESTING, REMOVE AFTER FINISHED */
+compSpaceArray[0].isTaken = true;
+compSpaceArray[1].isTaken = true;
+console.log(compSpaceArray);
 
+let startButton = document.querySelector("#start-game");
+startButton.addEventListener("click", startGame);
+
+//Make array of potential spaces to choose
+let potentialCompSpaces = [];
+for (let i = 0; i < compSpaceArray.length; i++) {
+    potentialCompSpaces.push(compSpaceArray[i].spaceNum);
+}
+
+function startGame(ev) {
+    ev.preventDefault();
+
+    shipsArrComp.forEach(ship => {
+
+    })
+}
+
+/* COME BACK TO ABOVE AFTER FINISHING VALIDATION / CLEAN UP OF PLAYER SIDE */
 
 //Add event listeners to computer gameboard
 const compBoardSpaces = document.querySelectorAll(".comp-space");
 compBoardSpaces.forEach(space => space.addEventListener("click", takeShot));
 
 //MAKING MOVES
-/* BELOW FOR TESTING, REMOVE AFTER FINISHED */
-compSpaceArray[0].isTaken = true;
-compSpaceArray[1].isTaken = true;
-console.log(compSpaceArray);
-
-//Player moves
+//1. Player moves
 function takeShot(ev) {
+    ev.preventDefault();
     let targetNum = ev.target.getAttribute("id").slice(3);
 
     if (compSpaceArray[targetNum].isMiss === true || compSpaceArray[targetNum].isHit === true) {
@@ -354,12 +400,16 @@ function takeShot(ev) {
     } else if (compSpaceArray[targetNum].isTaken === true) {
         ev.target.classList.add("hit");
         compSpaceArray[targetNum].isHit = true;
+        // let hitShip = playerSpaceArray[targetNum].isTakenShipName;
+        // checkIfSank(hitShip, targetNum);
+        //NEED TO UPDATE ABOVE TO BE TRANSLATABLE TO PLAYER
     }
 
     computerMoves();
 }
 
-//Computer moves
+//2. Computer moves
+//Computer selects a random space and moves
 let potentialCompMoves = [];
 
 for (let i = 0; i < playerSpaceArray.length; i++) {
