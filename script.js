@@ -291,7 +291,7 @@ function selectSpace(ev) {
 
     //If ship in a valid placement, set the ship in that space.
     if (validPlacement) {
-        setShip(ev.target, "player-setup", playerSpaceArray, shipsArrPlay, shipIndex);
+        setShip(ev.target, "player-setup", playerSpaceArray, shipsArrPlay, shipIndex, directionIndex);
         resetDefaultVariables();
     } else {
         alert("The ship will not fit in the selected direction, please choose another direction or another space.");
@@ -310,7 +310,7 @@ function validateMoveLength(targetCell, targetArray, directionIndex, shipSize) {
     }
 }
 
-function setShip(targetCell, newDomClass, targetSpaceArray, targetShipsArray, shipIndex) {
+function setShip(targetCell, newDomClass, targetSpaceArray, targetShipsArray, shipIndex, directionIndex) {
     markSpaceTakenDom(targetCell, newDomClass);
     let selectedNumber = convertDomToArrID(targetCell);
     markSpaceTakenArr(targetSpaceArray, selectedNumber);
@@ -319,9 +319,9 @@ function setShip(targetCell, newDomClass, targetSpaceArray, targetShipsArray, sh
 
     for (let i = 2; i <= targetShipsArray[shipIndex].length; i++) {
         //Set selected number to be one space over in specified direction
-        selectedNumber = moveOverOneSpace(selectedNumber);
+        selectedNumber = moveOverOneSpace(selectedNumber, directionIndex);
         markSpaceTakenArr(targetSpaceArray, selectedNumber);
-        let shipID = `#pl-${String(selectedNumber)}`;
+        let shipID = `#${targetSpaceArray[selectedNumber].domID}`;
         markSpaceTakenDom(document.querySelector(shipID), newDomClass);
         targetShipsArray[shipIndex].spaceArr.push(selectedNumber);
         targetSpaceArray[selectedNumber].isTakenShipName = targetShipsArray[shipIndex].name;
@@ -339,11 +339,16 @@ function convertDomToArrID(element) {
     return Number(selectedID.slice(3));
 }
 
+function convertArrIDToDom(arr, space) {
+    let domID = `#${arr[space].domID}`;
+    return document.querySelector(domID);
+}
+
 function markSpaceTakenArr(arr, num) {
     arr[num].isTaken = true;
 } 
 
-function moveOverOneSpace(num) {
+function moveOverOneSpace(num, directionIndex) {
     return num + directionsArr[directionIndex].numSpaces;
 }
 
@@ -355,11 +360,6 @@ function resetDefaultVariables() {
 
 //COMPUTER GAME SETUP
 //Setting up computer ships
-/* BELOW FOR TESTING, REMOVE AFTER FINISHED */
-compSpaceArray[0].isTaken = true;
-compSpaceArray[1].isTaken = true;
-console.log(compSpaceArray);
-
 let startButton = document.querySelector("#start-game");
 startButton.addEventListener("click", startGame);
 
@@ -372,12 +372,26 @@ for (let i = 0; i < compSpaceArray.length; i++) {
 function startGame(ev) {
     ev.preventDefault();
 
-    shipsArrComp.forEach(ship => {
+    for (let i = 0; i < shipsArrComp.length; i++) {
+        let validPlacement = false;
+        while (validPlacement === false) {
 
-    })
+            let randomNumber = Math.floor(Math.random() * (potentialCompSpaces.length));
+            let firstSpace = potentialCompSpaces[randomNumber];
+            let randomDirectionIndex = Math.floor(Math.random() * 3);
+            let firstTargetDiv = convertArrIDToDom(compSpaceArray, firstSpace);
+            let moveLengthValid = validateMoveLength(firstTargetDiv, compSpaceArray, randomDirectionIndex, shipsArrComp[i].length);
+
+            if (moveLengthValid && !firstSpace.isTaken) {
+                validPlacement = true;
+            }
+
+            if (validPlacement) {
+                setShip(firstTargetDiv, "player-setup", compSpaceArray, shipsArrComp, i, randomDirectionIndex);
+            }
+        }
+    }
 }
-
-/* COME BACK TO ABOVE AFTER FINISHING VALIDATION / CLEAN UP OF PLAYER SIDE */
 
 //Add event listeners to computer gameboard
 const compBoardSpaces = document.querySelectorAll(".comp-space");
@@ -417,8 +431,7 @@ for (let i = 0; i < playerSpaceArray.length; i++) {
 }
 
 function computerMoves() {
-    let numOfGuesses = potentialCompMoves.length;
-    let randomNumber = Math.floor(Math.random() * (numOfGuesses));
+    let randomNumber = Math.floor(Math.random() * (potentialCompMoves.length));
     let randomGuess = potentialCompMoves[randomNumber];
 
     potentialCompMoves.splice(randomNumber, 1);
