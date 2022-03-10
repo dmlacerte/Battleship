@@ -75,9 +75,10 @@ let gameSetup = true;
 
 //a) Use a constructor to set up array of ship objects (PLAYER)
 class Ship {
-    constructor(shipName, length) {
+    constructor(shipName, length, color) {
         this.name = shipName;
         this.length = length;
+        this.backgroundColor = color;
         this.spaceArr = [];
         this.hitsArr = [];
         this.shipSetup = false;
@@ -87,16 +88,16 @@ class Ship {
 }
 
 const shipsArrPlay = [
-    new Ship("destroyer", 2),
-    new Ship("submarine", 3),
-    new Ship("battleship", 4)
+    new Ship("destroyer", 2, "gray-ship"),
+    new Ship("submarine", 3, "green-ship"),
+    new Ship("battleship", 4, "pink-ship")
 ];
 
 //Use same constructor to set up array of ship objects (COMPUTER)
 const shipsArrComp = [
-    new Ship("destroyer", 2),
-    new Ship("submarine", 3),
-    new Ship("battleship", 4)
+    new Ship("destroyer", 2, "gray-ship"),
+    new Ship("submarine", 3, "green-ship"),
+    new Ship("battleship", 4, "pink-ship")
 ];
 
 //b) Set up array of direction objects to move around the board
@@ -291,7 +292,7 @@ function selectSpace(ev) {
 
     //If ship in a valid placement, set the ship in that space.
     if (validPlacement) {
-        setShip(ev.target, "player-setup", playerSpaceArray, shipsArrPlay, shipIndex, directionIndex);
+        setShip(ev.target, shipsArrPlay[shipIndex].backgroundColor, playerSpaceArray, shipsArrPlay, shipIndex, directionIndex);
         resetDefaultVariables();
     } else {
         alert("The ship will not fit in the selected direction, please choose another direction or another space.");
@@ -363,31 +364,27 @@ function resetDefaultVariables() {
 let startButton = document.querySelector("#start-game");
 startButton.addEventListener("click", startGame);
 
-//Make array of potential spaces to choose
-let potentialCompSpaces = [];
-for (let i = 0; i < compSpaceArray.length; i++) {
-    potentialCompSpaces.push(compSpaceArray[i].spaceNum);
-}
-
 function startGame(ev) {
     ev.preventDefault();
 
     for (let i = 0; i < shipsArrComp.length; i++) {
         let validPlacement = false;
+        let moveLengthValid = false;
+
         while (validPlacement === false) {
-
-            let randomNumber = Math.floor(Math.random() * (potentialCompSpaces.length));
-            let firstSpace = potentialCompSpaces[randomNumber];
+            let randomNumber = Math.floor(Math.random() * (compSpaceArray.length));
             let randomDirectionIndex = Math.floor(Math.random() * 3);
-            let firstTargetDiv = convertArrIDToDom(compSpaceArray, firstSpace);
-            let moveLengthValid = validateMoveLength(firstTargetDiv, compSpaceArray, randomDirectionIndex, shipsArrComp[i].length);
+            let firstTargetDiv = convertArrIDToDom(compSpaceArray, randomNumber);
+            if (!compSpaceArray[randomNumber].isTaken) {
+                moveLengthValid = validateMoveLength(firstTargetDiv, compSpaceArray, randomDirectionIndex, shipsArrComp[i].length);
+            }
 
-            if (moveLengthValid && !firstSpace.isTaken) {
+            if (moveLengthValid) {
                 validPlacement = true;
             }
 
             if (validPlacement) {
-                setShip(firstTargetDiv, "player-setup", compSpaceArray, shipsArrComp, i, randomDirectionIndex);
+                setShip(firstTargetDiv, shipsArrComp[i].backgroundColor, compSpaceArray, shipsArrComp, i, randomDirectionIndex);
             }
         }
     }
