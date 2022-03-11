@@ -109,22 +109,30 @@ const directionsArr = [
     {
         name: "right",
         numSpaces: 1,
-        spaceRef: "numOfSpacesToRight"
+        spaceRef: "numOfSpacesToRight",
+        reverseDirection: "left",
+        reverseDirectionIndex: 1
     },
     {
         name: "left",
         numSpaces: -1,
-        spaceRef: "numOfSpacesToLeft"
+        spaceRef: "numOfSpacesToLeft",
+        reverseDirection: "right",
+        reverseDirectionIndex: 0
     },
     {
         name: "up",
         numSpaces: -5,
-        spaceRef: "numOfSpacesToTop"
+        spaceRef: "numOfSpacesToTop",
+        reverseDirection: "bottom",
+        reverseDirectionIndex: 3
     },
     {
         name: "down",
         numSpaces: 5,
-        spaceRef: "numOfSpacesToBottom"
+        spaceRef: "numOfSpacesToBottom",
+        reverseDirection: "top",
+        reverseDirectionIndex: 2
     }
 ]
 
@@ -139,6 +147,10 @@ class Space {
         this.numOfSpacesToRight = 5 - colNum;
         this.numOfSpacesToTop = rowNum - 1;
         this.numOfSpacesToBottom = 5 - rowNum;
+        this.availCompShotsLeft = 0;
+        this.availCompShotsRight = 0;
+        this.availCompShotsTop = 0;
+        this.availCompShotsBottom = 0;
         this.isTaken = false;
         this.isTakenShipName = "";
         this.isMiss = false;
@@ -154,43 +166,83 @@ class Space {
 
         while (countRight < 5 - this.colNum) {
             currentSpace += directionsArr[0].numSpaces;
-            if (arr[currentSpace].isTaken) {break};
+            if (arr[currentSpace].isTaken) { break };
             countRight++;
         }
         this.numOfSpacesToRight = countRight;
 
+        countRight = 0;
+        currentSpace = this.spaceNum;
+
+        while (countRight < 5 - this.colNum) {
+            currentSpace += directionsArr[0].numSpaces;
+            if (arr[currentSpace].isHit || arr[currentSpace].isMiss) { break };
+            countRight++;
+        }
+        this.availCompShotsRight = countRight;
+        
         //LEFT
         let countLeft = 0;
         currentSpace = this.spaceNum;
 
         while (countLeft < this.colNum - 1) {
             currentSpace += directionsArr[1].numSpaces;
-            if (arr[currentSpace].isTaken) {break};
+            if (arr[currentSpace].isTaken) { break };
             countLeft++;
         }
         this.numOfSpacesToLeft = countLeft;
 
+        countLeft = 0;
+        currentSpace = this.spaceNum;
+
+        while (countLeft < this.colNum - 1) {
+            currentSpace += directionsArr[1].numSpaces;
+            if (arr[currentSpace].isHit || arr[currentSpace].isMiss) { break };
+            countLeft++;
+        }
+        this.availCompShotsLeft = countLeft;
+        
         //TOP
         let countTop = 0;
         currentSpace = this.spaceNum;
 
         while (countTop < this.rowNum - 1) {
             currentSpace += directionsArr[2].numSpaces;
-            if (arr[currentSpace].isTaken) {break};
+            if (arr[currentSpace].isTaken) { break };
             countTop++;
         }
         this.numOfSpacesToTop = countTop;
 
+        countTop = 0;
+        currentSpace = this.spaceNum;
+
+        while (countTop < this.rowNum - 1) {
+            currentSpace += directionsArr[2].numSpaces;
+            if (arr[currentSpace].isHit || arr[currentSpace].isMiss) { break };
+            countTop++;
+        }
+        this.availCompShotsTop = countTop;
+                
         //BOTTOM
         let countBottom = 0;
         currentSpace = this.spaceNum;
 
         while (countBottom < 5 - this.rowNum) {
             currentSpace += directionsArr[3].numSpaces;
-            if (arr[currentSpace].isTaken) {break};
+            if (arr[currentSpace].isTaken) { break };
             countBottom++;
         }
         this.numOfSpacesToBottom = countBottom;
+
+        countBottom = 0;
+        currentSpace = this.spaceNum;
+
+        while (countBottom < 5 - this.rowNum) {
+            currentSpace += directionsArr[3].numSpaces;
+            if (arr[currentSpace].isHit || arr[currentSpace].isMiss) { break };
+            countBottom++;
+        }
+        this.availCompShotsBottom = countBottom;
     }
 }
 
@@ -209,9 +261,6 @@ function setUpBoardArrays(arr, choosePlOrCp) {
             newSpace.spaceNum = spaceNum;
             newSpace.domID = `${choosePlOrCp}-${spaceNum}`;
             spaceNum++;
-
-            //Set if the space is on the left or right side of the board
-            (col === 1 || col === 5) ? newSpace.isEndCol = true : newSpace.isEndCol = false;
 
             //Push new object into player space array
             arr.push(newSpace);
@@ -268,7 +317,8 @@ function selectSpace(ev) {
     //Validate that user has selected required inputs (ship & direction), and that ship has not been set up already.
     if (!!(directionIndex + 1) && shipsArrPlay[shipIndex].shipSelected && !shipsArrPlay[shipIndex].shipSetup) {       
         //Validate that the size of the ship will fit in the direction selected. 
-        let moveLengthValid = validateMoveLength(ev.target, playerBoardArray, directionIndex, shipSize);
+        let selectedNumber = convertDomToArrID(ev.target);
+        let moveLengthValid = validateMoveLength(selectedNumber, playerBoardArray, directionIndex, shipSize);
         if (moveLengthValid) {
             validPlacement = true;
         }
@@ -290,8 +340,8 @@ function selectSpace(ev) {
         
 }
 
-function validateMoveLength(targetCell, targetArray, directionIndex, shipSize) {
-    let selectedNumber = convertDomToArrID(targetCell);
+function validateMoveLength(selectedNumber, targetArray, directionIndex, shipSize) {
+    //let selectedNumber = convertDomToArrID(targetCell);
     targetArray[selectedNumber].updateSurroundingSpace(targetArray);
     let availableSpace = targetArray[selectedNumber][directionsArr[directionIndex].spaceRef];
     if (availableSpace >= (shipSize - 1)) {
@@ -366,7 +416,7 @@ function startGame(ev) {
             let randomDirectionIndex = Math.floor(Math.random() * 3);
             let firstTargetDiv = convertArrIDToDom(compBoardArray, randomNumber);
             if (!compBoardArray[randomNumber].isTaken) {
-                moveLengthValid = validateMoveLength(firstTargetDiv, compBoardArray, randomDirectionIndex, shipsArrComp[i].length);
+                moveLengthValid = validateMoveLength(randomNumber, compBoardArray, randomDirectionIndex, shipsArrComp[i].length);
             }
 
             if (moveLengthValid) {
@@ -395,10 +445,10 @@ function takeShot(ev) {
         return;
     }
 
-    if (compBoardArray[targetNum].isTaken === false) {
+    if (compBoardArray[targetNum].isTaken === false && !playerWins) {
         ev.target.classList.add("miss");
         compBoardArray[targetNum].isMiss = true;
-    } else if (compBoardArray[targetNum].isTaken === true) {
+    } else if (compBoardArray[targetNum].isTaken === true && !playerWins) {
         ev.target.classList.add("hit");
         compBoardArray[targetNum].isHit = true;
         let hitShip = compBoardArray[targetNum].isTakenShipName;
@@ -423,7 +473,15 @@ function resetPotentialCompMoves() {
 resetPotentialCompMoves();
 
 function computerMoves() {
-    let randomNumber = Math.floor(Math.random() * (potentialCompMoves.length));
+    if (pursueHitShip === false) {
+        computerMovesRandomly();
+    } else {
+        computerMovesStrategically();
+    }
+}
+
+function computerMovesRandomly() {
+    let randomNumber = Math.floor(Math.random() * potentialCompMoves.length);
     let randomGuess = potentialCompMoves[randomNumber];
 
     potentialCompMoves.splice(randomNumber, 1);
@@ -440,6 +498,129 @@ function computerMoves() {
         playerBoardArray[randomGuess].isHit = true;
         let hitShip = playerBoardArray[randomGuess].isTakenShipName;
         checkIfSank(hitShip, randomGuess, shipsArrPlay);
+        pursueHitShip = true;
+        lastHit = randomGuess;
+    }
+}
+
+let lastHit;
+let hitCount = 1;
+let pursueHitShip = false;
+let pursueHitShipDirectionIndex;
+let reverseDirection = false;
+
+function computerMovesStrategically() {
+    playerBoardArray[lastHit].updateSurroundingSpace(playerBoardArray);
+    let shipHit = playerBoardArray[lastHit].isTakenShipName;
+    let shipHitIndex = shipsArrPlay.findIndex(ship => ship.name === shipHit);
+    let directionIndex;
+    let nextMove;
+    
+    //If first hit, choose a random valid direction to pursue ship
+    if (!pursueHitShipDirectionIndex) {
+        //Determine which directions are valid based on the length of the ship hit
+
+        // function countHorizontalSpace(currentSpace) {
+        //     let countRight = 0;
+        //     let countToEdge = 5 - playerBoardArray[currentSpace].colNum;
+        //     let moveLeft;
+        //     if (!(countToEdge === 0)) {
+        //         moveLeft = currentSpace + directionsArr[1].numSpaces; 
+        //         if (!playerBoardArray[moveLeft].isHit && !playerBoardArray[moveLeft].isMiss) {
+        //             countRight++;
+        //             moveLeft = currentSpace + directionsArr[1].numSpaces;
+        //         }
+        //         while (countRight < countToEdge && !playerBoardArray[moveLeft].isHit && !playerBoardArray[moveLeft].isMiss) {
+        //             if (moveLeft <= countToEdge) {moveLeft += directionsArr[1].numSpaces};
+        //             countRight++;
+        //         }
+        //     }
+
+        //     let countLeft = 0;
+        //     let countToEdge = playerBoardArray[currentSpace].colNum - 1;
+        //     let moveLeft;
+        //     if (!(countToEdge === 0)) {
+        //         moveLeft = currentSpace + directionsArr[1].numSpaces; 
+        //         if (!playerBoardArray[moveLeft].isHit && !playerBoardArray[moveLeft].isMiss) {
+        //             countLeft++;
+        //             moveLeft = currentSpace + directionsArr[1].numSpaces;
+        //         }
+        //         while (countLeft < countToEdge && !playerBoardArray[moveLeft].isHit && !playerBoardArray[moveLeft].isMiss) {
+        //             if (moveLeft <= countToEdge) {moveLeft += directionsArr[1].numSpaces};
+        //             countLeft++;
+        //         }
+        //     }
+        // }
+
+        // function countVerticalSpace(currentSpace) {
+
+        // }
+
+        let potentialDirectionIndexArray = [];
+        playerBoardArray[lastHit].updateSurroundingSpace(playerBoardArray);
+
+        let calcHorizontalAvailability = playerBoardArray[lastHit].availCompShotsLeft + playerBoardArray[lastHit].availCompShotsRight + 1;
+        let calcVerticalAvailability = playerBoardArray[lastHit].availCompShotsTop + playerBoardArray[lastHit].availCompShotsBottom + 1;
+
+        if (calcHorizontalAvailability >= shipsArrPlay[shipHitIndex].length) {
+            potentialDirectionIndexArray.push(0);
+            potentialDirectionIndexArray.push(1);
+        }
+        if (calcVerticalAvailability >= shipsArrPlay[shipHitIndex].length) {
+            potentialDirectionIndexArray.push(2);
+            potentialDirectionIndexArray.push(3);
+        }
+
+        // let right = validateMoveLength(lastHit, playerBoardArray, 0, shipsArrPlay[shipHitIndex].length);
+        // if (right) {potentialDirectionIndexArray.push(0)}
+        // let left = validateMoveLength(lastHit, playerBoardArray, 1, shipsArrPlay[shipHitIndex].length);
+        // if (left) {potentialDirectionIndexArray.push(1);}
+        // let up = validateMoveLength(lastHit, playerBoardArray, 2, shipsArrPlay[shipHitIndex].length);
+        // if (up) {potentialDirectionIndexArray.push(2);}
+        // let down = validateMoveLength(lastHit, playerBoardArray, 3, shipsArrPlay[shipHitIndex].length);
+        // if (down) {potentialDirectionIndexArray.push(3);}
+
+        //Randomly select a valid direction and move 1 space in that direction
+        directionIndex = potentialDirectionIndexArray[Math.floor(Math.random() * potentialDirectionIndexArray.length)];
+        nextMove = moveOverOneSpace(lastHit, directionIndex);
+    }
+    //If second hit, pursue that direction (or the opposite direction)
+    else if (!reverseDirection) {
+        directionIndex = pursueHitShipDirectionIndex;
+        nextMove = moveOverOneSpace(lastHit, directionIndex);
+    } else if (reverseDirection) {
+        nextMove = moveOverOneSpace(lastHit, directionIndex);
+        for (let i = 0; i <= hitCount; i++) {
+            nextMove = moveOverOneSpace(nextMove, directionIndex);
+        }
+    }
+
+    let domSpaceID = `#pl-${nextMove}`;
+    let domSpace = document.querySelector(domSpaceID);
+
+    if (playerBoardArray[nextMove].isTaken === false) {
+        domSpace.classList.add("miss");
+        playerBoardArray[nextMove].isMiss = true;
+        if (pursueHitShipDirectionIndex) {
+            pursueHitShipDirectionIndex = shipsArrPlay[pursueHitShipDirectionIndex].reverseDirectionIndex;
+            reverseDirection = true;
+        }
+    } else if (playerBoardArray[nextMove].isTaken === true) {
+        hitCount++;
+        domSpace.classList.remove("player-setup");
+        domSpace.classList.add("hit");
+        playerBoardArray[nextMove].isHit = true;
+        let hitShip = playerBoardArray[nextMove].isTakenShipName;
+        //Check if shop hit is same ship as last shot 
+        if (hitShip === shipHit) {
+            lastHit = nextMove;
+            pursueHitShipDirectionIndex = directionIndex;
+        }
+        let isShipSank = checkIfSank(hitShip, nextMove, shipsArrPlay);
+        if (isShipSank) {
+            pursueHitShip = false;
+        }
+        //Reset unless there is another unsunk ship with hits
     }
 }
 
