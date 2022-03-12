@@ -110,6 +110,7 @@ const directionsArr = [
         name: "right",
         numSpaces: 1,
         spaceRef: "numOfSpacesToRight",
+        compSpaceRef: "availCompShotsRight",
         reverseDirection: "left",
         reverseDirectionIndex: 1
     },
@@ -117,6 +118,7 @@ const directionsArr = [
         name: "left",
         numSpaces: -1,
         spaceRef: "numOfSpacesToLeft",
+        compSpaceRef: "availCompShotsLeft",
         reverseDirection: "right",
         reverseDirectionIndex: 0
     },
@@ -124,6 +126,7 @@ const directionsArr = [
         name: "up",
         numSpaces: -5,
         spaceRef: "numOfSpacesToTop",
+        compSpaceRef: "availCompShotsTop",
         reverseDirection: "bottom",
         reverseDirectionIndex: 3
     },
@@ -131,6 +134,7 @@ const directionsArr = [
         name: "down",
         numSpaces: 5,
         spaceRef: "numOfSpacesToBottom",
+        compSpaceRef: "availCompShotsBottom",
         reverseDirection: "top",
         reverseDirectionIndex: 2
     }
@@ -143,6 +147,8 @@ class Space {
         this.domID = "";
         this.colNum = colNum;
         this.rowNum = rowNum;
+        this.isEndCol = false;
+        this.isEndRow = false;
         this.numOfSpacesToLeft = colNum - 1;
         this.numOfSpacesToRight = 5 - colNum;
         this.numOfSpacesToTop = rowNum - 1;
@@ -261,6 +267,10 @@ function setUpBoardArrays(arr, choosePlOrCp) {
             newSpace.spaceNum = spaceNum;
             newSpace.domID = `${choosePlOrCp}-${spaceNum}`;
             spaceNum++;
+
+            //Mark end rows & columns
+            (newSpace.colNum === 1 || newSpace.colNum === 5) ? newSpace.isEndCol = true : newSpace.isEndCol = false;
+            (newSpace.rowNum === 1 || newSpace.rowNum === 5) ? newSpace.isEndRow = true : newSpace.isEndRow = false;
 
             //Push new object into player space array
             arr.push(newSpace);
@@ -499,130 +509,256 @@ function computerMovesRandomly() {
         let hitShip = playerBoardArray[randomGuess].isTakenShipName;
         checkIfSank(hitShip, randomGuess, shipsArrPlay);
         pursueHitShip = true;
-        lastHit = randomGuess;
+        // lastHit = randomGuess;
+        firstShot = randomGuess;
+        moveStartingSpace = firstShot;
+        firstShotShip = hitShip;
     }
 }
 
-let lastHit;
-let hitCount = 1;
-let pursueHitShip = false;
-let pursueHitShipDirectionIndex;
-let reverseDirection = false;
+/* Variables:
+isThisFirstMove = true (default)
+firstShot = # (set from random move)
+firstShotShip = "" (set from random move)
+lastShot = # 
+lastShotWasHit = false
+lastShotShip = ""
+lastDirectionIndex = #
+moveStartingSpace = firstShot
+
+Every Time:
+    Make valid directions array using moveStartingSpace.
+
+First Hit:
+    CONDITIONS: isThisFirstMove = true
+    1. Select a random valid direction from the array.
+    UPDATE: isThisFirstMove = false
+
+Not First Hit:
+    CONDITIONS: isThisFirstMove = false
+    Choose Direction:
+        If current space is first space, and hit length = 1, choose random direction
+        If current space is first space, and hit length > 1, choose opposite direction of last direction.
+        If current space is not first space, continue in last direction. 
+        A. If last shot was a hit, and current spaces is not first space, keep direction the same.
+            CONDITIONS: lastShotWasHit = true
+            UPDATE DIRECTION: currentDirection = lastDirectionIndex
+        B. If last shot was not a hit, but have made more than one hit, direction should be opposite.
+            CONDITIONS: lastShotWasHit = false; hitSpaces > 1
+            UPDATE DIRECTION: currentDirection = lastDirectionIndex.opposite
+        C. If neither of the above are true, choose a new direction from the valid array.
+            UPDATE DIRECTION: currentDirection = random from valid directions array
+
+Move One In Direction From SPACE:
+    UPDATE: lastShot, lastDirectionIndex
+    A. If A Hit
+        1. Refresh valid directions array.
+            UPDATE: lastShotWasHit = true; lastShotShip
+        2. Check if direction is still valid, and that ship hit is the same.
+            CONDITIONS: avail spaces in direction > 0; firstShotShip = lastShotShip
+            If True:  
+                UPDATE: moveStartingSpace = firstShot
+            If False: 
+                UPDATE: moveStartingSpace = lastShot
+    B. If A Miss 
+        UPDATE: moveStartingSpace = firstShot; lastShotWasHit = false
+
+Once Ship Is Sunk:
+    Remove hit spaces from Comp potential space array
+    Reset default variables
+    Check if there are any other unsunk ships with hits
+*/
+
+let pursueHitShip = false; //Set in random move
+let isThisFirstMove = true;
+let firstShot = 0; //Set in random move
+let firstShotShip = ""; //Set in random move
+let lastShot = 0; //Set in strategic move 
+let lastShotWasHit = false; //Set in strategic move 
+let lastShotShip = ""; //Set in strategic move
+let lastDirectionIndex = 0; //Set in strategic move
+let moveStartingSpace = 0; //Set in random move, updated in strategic move
 
 function computerMovesStrategically() {
-    playerBoardArray[lastHit].updateSurroundingSpace(playerBoardArray);
-    let shipHit = playerBoardArray[lastHit].isTakenShipName;
-    let shipHitIndex = shipsArrPlay.findIndex(ship => ship.name === shipHit);
-    let directionIndex;
-    let nextMove;
-    
-    //If first hit, choose a random valid direction to pursue ship
-    if (!pursueHitShipDirectionIndex) {
-        //Determine which directions are valid based on the length of the ship hit
+    //Make valid directions array using moveStartingSpace.
+    let potentialDirectionIndexArray = [];
 
-        // function countHorizontalSpace(currentSpace) {
-        //     let countRight = 0;
-        //     let countToEdge = 5 - playerBoardArray[currentSpace].colNum;
-        //     let moveLeft;
-        //     if (!(countToEdge === 0)) {
-        //         moveLeft = currentSpace + directionsArr[1].numSpaces; 
-        //         if (!playerBoardArray[moveLeft].isHit && !playerBoardArray[moveLeft].isMiss) {
-        //             countRight++;
-        //             moveLeft = currentSpace + directionsArr[1].numSpaces;
-        //         }
-        //         while (countRight < countToEdge && !playerBoardArray[moveLeft].isHit && !playerBoardArray[moveLeft].isMiss) {
-        //             if (moveLeft <= countToEdge) {moveLeft += directionsArr[1].numSpaces};
-        //             countRight++;
-        //         }
-        //     }
-
-        //     let countLeft = 0;
-        //     let countToEdge = playerBoardArray[currentSpace].colNum - 1;
-        //     let moveLeft;
-        //     if (!(countToEdge === 0)) {
-        //         moveLeft = currentSpace + directionsArr[1].numSpaces; 
-        //         if (!playerBoardArray[moveLeft].isHit && !playerBoardArray[moveLeft].isMiss) {
-        //             countLeft++;
-        //             moveLeft = currentSpace + directionsArr[1].numSpaces;
-        //         }
-        //         while (countLeft < countToEdge && !playerBoardArray[moveLeft].isHit && !playerBoardArray[moveLeft].isMiss) {
-        //             if (moveLeft <= countToEdge) {moveLeft += directionsArr[1].numSpaces};
-        //             countLeft++;
-        //         }
-        //     }
-        // }
-
-        // function countVerticalSpace(currentSpace) {
-
-        // }
-
-        let potentialDirectionIndexArray = [];
-        playerBoardArray[lastHit].updateSurroundingSpace(playerBoardArray);
-
-        let calcHorizontalAvailability = playerBoardArray[lastHit].availCompShotsLeft + playerBoardArray[lastHit].availCompShotsRight + 1;
-        let calcVerticalAvailability = playerBoardArray[lastHit].availCompShotsTop + playerBoardArray[lastHit].availCompShotsBottom + 1;
-
-        if (calcHorizontalAvailability >= shipsArrPlay[shipHitIndex].length) {
-            potentialDirectionIndexArray.push(0);
-            potentialDirectionIndexArray.push(1);
-        }
-        if (calcVerticalAvailability >= shipsArrPlay[shipHitIndex].length) {
-            potentialDirectionIndexArray.push(2);
-            potentialDirectionIndexArray.push(3);
-        }
-
-        // let right = validateMoveLength(lastHit, playerBoardArray, 0, shipsArrPlay[shipHitIndex].length);
-        // if (right) {potentialDirectionIndexArray.push(0)}
-        // let left = validateMoveLength(lastHit, playerBoardArray, 1, shipsArrPlay[shipHitIndex].length);
-        // if (left) {potentialDirectionIndexArray.push(1);}
-        // let up = validateMoveLength(lastHit, playerBoardArray, 2, shipsArrPlay[shipHitIndex].length);
-        // if (up) {potentialDirectionIndexArray.push(2);}
-        // let down = validateMoveLength(lastHit, playerBoardArray, 3, shipsArrPlay[shipHitIndex].length);
-        // if (down) {potentialDirectionIndexArray.push(3);}
-
-        //Randomly select a valid direction and move 1 space in that direction
-        directionIndex = potentialDirectionIndexArray[Math.floor(Math.random() * potentialDirectionIndexArray.length)];
-        nextMove = moveOverOneSpace(lastHit, directionIndex);
+    function updatePotentialDirectionIndexArray(space) {
+        potentialDirectionIndexArray = [];
+        playerBoardArray[space].updateSurroundingSpace(playerBoardArray);
+        if (playerBoardArray[space].availCompShotsRight > 0) {potentialDirectionIndexArray.push(0);}
+        if (playerBoardArray[space].availCompShotsLeft > 0) {potentialDirectionIndexArray.push(1);}
+        if (playerBoardArray[space].availCompShotsTop > 0) {potentialDirectionIndexArray.push(2);}
+        if (playerBoardArray[space].availCompShotsBottom > 0) {potentialDirectionIndexArray.push(3);}
     }
-    //If second hit, pursue that direction (or the opposite direction)
-    else if (!reverseDirection) {
-        directionIndex = pursueHitShipDirectionIndex;
-        nextMove = moveOverOneSpace(lastHit, directionIndex);
-    } else if (reverseDirection) {
-        nextMove = moveOverOneSpace(lastHit, directionIndex);
-        for (let i = 0; i <= hitCount; i++) {
-            nextMove = moveOverOneSpace(nextMove, directionIndex);
+
+    updatePotentialDirectionIndexArray(moveStartingSpace);
+
+    //Execute if not first shot, set direction index dependent on moveStartingSpace
+    if (!isThisFirstMove) {
+        let firstShotShipIndex = shipsArrPlay.findIndex(ship => ship.name === firstShotShip);
+        let numberOfHitsMade = shipsArrPlay[firstShotShipIndex].hitsArr.length;
+        //If back on first space, and valid vertical / horizontal has not been determined, select randomly
+        if (moveStartingSpace === firstShot && numberOfHitsMade === 1) {
+            randNum = Math.floor(Math.random() * potentialDirectionIndexArray.length);
+            directionIndex = potentialDirectionIndexArray[randNum];
+        }
+        //If back on first space, and have determined valid vertical / horizontal, go in opposite direction
+        if (moveStartingSpace === firstShot && numberOfHitsMade > 1) {
+            directionIndex = directionsArr[lastDirectionIndex].reverseDirectionIndex;
+        }
+        //If current space is not first space, continue in last direction
+        if (moveStartingSpace !== firstShot) {
+            directionIndex = lastDirectionIndex;
         }
     }
 
-    let domSpaceID = `#pl-${nextMove}`;
+    //Execute if first shot, set direction index as random
+    if (isThisFirstMove) {
+        let randNum = Math.floor(Math.random() * potentialDirectionIndexArray.length);
+        directionIndex = potentialDirectionIndexArray[randNum];
+        isThisFirstMove = false;
+    }
+
+    //Once direction is set, take shot in selected direction
+    lastShot = moveOverOneSpace(moveStartingSpace, directionIndex);
+    lastDirectionIndex = directionIndex;
+    let domSpaceID = `#pl-${lastShot}`;
     let domSpace = document.querySelector(domSpaceID);
 
-    if (playerBoardArray[nextMove].isTaken === false) {
-        domSpace.classList.add("miss");
-        playerBoardArray[nextMove].isMiss = true;
-        if (pursueHitShipDirectionIndex) {
-            pursueHitShipDirectionIndex = shipsArrPlay[pursueHitShipDirectionIndex].reverseDirectionIndex;
-            reverseDirection = true;
-        }
-    } else if (playerBoardArray[nextMove].isTaken === true) {
-        hitCount++;
+    //Execute if shot is a hit
+    if (playerBoardArray[lastShot].isTaken === true) {
+        lastShotWasHit = true;
+        lastShotShip = playerBoardArray[lastShot].isTakenShipName;
+        //Update DOM and Array
         domSpace.classList.remove("player-setup");
         domSpace.classList.add("hit");
-        playerBoardArray[nextMove].isHit = true;
-        let hitShip = playerBoardArray[nextMove].isTakenShipName;
-        //Check if shop hit is same ship as last shot 
-        if (hitShip === shipHit) {
-            lastHit = nextMove;
-            pursueHitShipDirectionIndex = directionIndex;
+        playerBoardArray[lastShot].isHit = true;
+        //Refresh valid directions array
+        updatePotentialDirectionIndexArray(lastShot);
+        //Check if continuing in same direction is valid (i.e., there are additional spaces in that direction, and the space hit was the same ship)
+        let spacesInDirection = playerBoardArray[lastShot][directionsArr[lastDirectionIndex].compSpaceRef];
+        let checkDirection = spacesInDirection > 0;
+        //Use to set starting space for next turn
+        if (checkDirection && (firstShotShip === lastShotShip)) {
+            moveStartingSpace = lastShot;
+        } else {
+            moveStartingSpace = firstShot;
         }
-        let isShipSank = checkIfSank(hitShip, nextMove, shipsArrPlay);
-        if (isShipSank) {
-            pursueHitShip = false;
-        }
-        //Reset unless there is another unsunk ship with hits
     }
+
+    //NEXT STEP, VALIDATE IF SHIP SUNK, IF SUNK AND OTHER SHIP HAS HITS, MOVE TO THAT SHIP
+
+    //Execute if shot is a miss
+    if (playerBoardArray[lastShot].isTaken === false) {
+        //Update DOM and Array
+        domSpace.classList.add("miss");
+        playerBoardArray[lastShot].isMiss = true;
+        //Reset starting space
+        moveStartingSpace = firstShot;
+        lastShotWasHit = false;
+    }  
+
 }
+
+// let lastHit;
+// let hitCount = 1;
+// let pursueHitShip = false;
+// let pursueHitShipDirectionIndex;
+// let reverseDirection = false;
+
+// function computerMovesStrategically() {
+//     // playerBoardArray[lastHit].updateSurroundingSpace(playerBoardArray);
+//     let shipHit = playerBoardArray[lastHit].isTakenShipName;
+//     let shipHitIndex = shipsArrPlay.findIndex(ship => ship.name === shipHit);
+//     let directionIndex;
+//     let nextMove;
+
+//     //If first hit, choose a random valid direction to pursue ship
+//     if (!(pursueHitShipDirectionIndex + 1)) {
+//         //Determine which directions are valid based on the length of the ship hit
+
+//         let potentialDirectionIndexArray = [];
+//         playerBoardArray[lastHit].updateSurroundingSpace(playerBoardArray);
+
+//         let calcHorizontalAvailability = playerBoardArray[lastHit].availCompShotsLeft + playerBoardArray[lastHit].availCompShotsRight + 1;
+//         console.log(calcHorizontalAvailability);
+//         let calcVerticalAvailability = playerBoardArray[lastHit].availCompShotsTop + playerBoardArray[lastHit].availCompShotsBottom + 1;
+//         console.log(calcVerticalAvailability);
+
+//         if (calcHorizontalAvailability >= shipsArrPlay[shipHitIndex].length) {
+//             if (!(playerBoardArray[lastHit].colNum === 5)) {
+//                 potentialDirectionIndexArray.push(0);
+//             }
+//             if (!(playerBoardArray[lastHit].colNum === 1)) {
+//                 potentialDirectionIndexArray.push(1);
+//             }
+//         }
+//         if (calcVerticalAvailability >= shipsArrPlay[shipHitIndex].length) {
+//             if (!(playerBoardArray[lastHit].rowNum === 1)) {
+//                 potentialDirectionIndexArray.push(2);
+//             }
+//             if (!(playerBoardArray[lastHit].rowNum === 5)) {
+//                 potentialDirectionIndexArray.push(3);
+//             }
+//         }
+
+//         //Randomly select a valid direction and move 1 space in that direction
+//         directionIndex = potentialDirectionIndexArray[Math.floor(Math.random() * potentialDirectionIndexArray.length)];
+//         nextMove = moveOverOneSpace(lastHit, directionIndex);
+//         console.log(nextMove);
+//     }
+//     //If second hit, pursue that direction (or the opposite direction)
+//     else if (!reverseDirection) {
+//         directionIndex = pursueHitShipDirectionIndex;
+//         nextMove = moveOverOneSpace(lastHit, directionIndex);
+//     } else if (reverseDirection) {
+//         directionIndex = pursueHitShipDirectionIndex;
+//         nextMove = moveOverOneSpace(lastHit, directionIndex);
+//         for (let i = 0; i <= hitCount; i++) {
+//             nextMove = moveOverOneSpace(nextMove, directionIndex);
+//         }
+//     }
+
+//     let domSpaceID = `#pl-${nextMove}`;
+//     let domSpace = document.querySelector(domSpaceID);
+
+//     if (playerBoardArray[nextMove].isTaken === false) {
+//         domSpace.classList.add("miss");
+//         playerBoardArray[nextMove].isMiss = true;
+//         if (pursueHitShipDirectionIndex + 1) {
+//             pursueHitShipDirectionIndex = shipsArrPlay[pursueHitShipDirectionIndex].reverseDirectionIndex;
+//             reverseDirection = true;
+//         }
+//     } else if (playerBoardArray[nextMove].isTaken === true) {
+//         //Mark move as a hit and increase hit count.
+//         hitCount++;
+//         domSpace.classList.remove("player-setup");
+//         domSpace.classList.add("hit");
+//         playerBoardArray[nextMove].isHit = true;
+//         //If current move is at an end row or column, change direction.
+//         let reachedEndCol = ((pursueHitShipDirectionIndex === 0 || pursueHitShipDirectionIndex === 1) && playerBoardArray[nextMove].isEndCol === true);
+//         let reachedEndRow = ((pursueHitShipDirectionIndex === 2 || pursueHitShipDirectionIndex === 3) && playerBoardArray[nextMove].isEndRow === true);
+//         if (reachedEndCol || reachedEndRow) {
+//             pursueHitShipDirectionIndex = shipsArrPlay[pursueHitShipDirectionIndex].reverseDirectionIndex;
+//             reverseDirection = true;
+//         }
+//         //Check if ship hit is same ship as last shot 
+//         let hitShip = playerBoardArray[nextMove].isTakenShipName;
+//         if (hitShip === shipHit) {
+//             lastHit = nextMove;
+//             pursueHitShipDirectionIndex = directionIndex;
+//         }
+//         //Check if targeted ship is sank.
+//         let isShipSank = checkIfSank(hitShip, nextMove, shipsArrPlay);
+//         console.log(isShipSank);
+//         if (isShipSank) {
+//             console.log("Ship is sank.")
+//             pursueHitShip = false;
+//         }
+//         //Reset unless there is another unsunk ship with hits
+//     }
+// }
 
 //ENDING GAME
 let playerWins = false;
@@ -679,4 +815,10 @@ function resetGame(ev) {
     //Reset potential computer moves 
     potentialCompMoves = [];
     resetPotentialCompMoves();
+
+    lastHit = 0;
+    hitCount = 1;
+    pursueHitShip = false;
+    pursueHitShipDirectionIndex = 0;
+    reverseDirection = false;
 }
