@@ -12,27 +12,33 @@
     <link href="https://fonts.googleapis.com/css2?family=Syne+Mono&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1 id="game-title">BATTLESHIP</h1>
     <div id="gameboard">
         <div id="computer-ships">
             <h2>Computer Ships</h2>
             <button class="battleship computer-ship">
-                <div class="battleship container">
+                <div class="battleship ship-container">
                     <img class="battleship ship" src="images/battleship.png" alt="picture of battleship">
-                    <div class="centered-text">HIT</div>
+                    <div class="cp-battleship centered-text"></div>
                 </div>
-                <p class="ship">Battleship</p>
+                <p class="battleship ship">Battleship</p>
             </button>
-            <button class="computer-ship submarine">
-                <img class="ship" src="images/submarine.png" alt="picture of submarine">
-                <p class="ship">Submarine</p>
+            <button class="submarine computer-ship">
+                <div class="submarine ship-container">
+                    <img class="submarine ship" src="images/submarine.png" alt="picture of submarine">
+                    <div class="cp-submarine centered-text"></div>
+                </div>
+                <p class="submarine ship">Submarine</p>
             </button>
-            <button class="computer-ship destroyer">
-                <img class="ship" src="images/destroyer.png" alt="picture of destroyer ship">
-                <p class="ship">Destroyer</p>
+            <button class="destroyer computer-ship">
+                <div class="destroyer ship-container">
+                    <img class="destroyer ship" src="images/destroyer.png" alt="picture of destroyer ship">
+                    <div class="cp-destroyer centered-text"></div>
+                </div>
+                <p class="destroyer ship">Destroyer</p>
             </button>
         </div>
         <div id="player-boards">
+            <h1 id="game-title">BATTLESHIP</h1>
             <div id="comp-board">
                 <div class="row-1">
                     <div class="board-space comp-space" id="cp-0"></div>
@@ -112,18 +118,29 @@
         <div id="player-ships">
             <h2>Player Ships</h2>
             <button class="battleship player-ship" id="pl-battleship">
-                <img class="battleship ship" src="images/battleship.png" alt="picture of battleship">
+                <div class="battleship ship-container">
+                    <img class="battleship ship" src="images/battleship.png" alt="picture of battleship">
+                    <div class="pl-battleship centered-text"></div>
+                </div>
                 <p class="battleship ship">Battleship</p>
             </button>
-            <button class="player-ship" id="pl-submarine">
-                <img class="ship" src="images/submarine.png" alt="picture of submarine">
-                <p class="ship">Submarine</p>
+            <button class="submarine player-ship" id="pl-submarine">
+                <div class="submarine ship-container">
+                    <img class="submarine ship" src="images/submarine.png" alt="picture of submarine">
+                    <div class="pl-submarine centered-text"></div>
+                </div>
+                <p class="submarine ship">Submarine</p>
             </button>
-            <button class="player-ship" id="pl-destroyer">
-                <img class="ship" src="images/destroyer.png" alt="picture of destroyer ship">
-                <p class="ship">Destroyer</p>
+            <button class="destroyer player-ship" id="pl-destroyer">
+                <div class="destroyer ship-container">
+                    <img class="destroyer ship" src="images/destroyer.png" alt="picture of destroyer ship">
+                    <div class="pl-destroyer centered-text"></div>
+                </div>
+                <p class="destroyer ship">Destroyer</p>
             </button>
             <div class="directions">
+                <p class="directions">To set the positions of your ships, first <em>select a ship</em>, then <em>select a direction arrow</em>, 
+                    then <em>select a starting space</em> from the bottom player board.</p>
                 <div class="directions top-row">
                     <button class="direction" id="up">&#8593;</button>
                 </div>
@@ -145,7 +162,7 @@
     <!-- Add a Modal for the Game Rules -->
     <div id="game-rules-modal" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
+            <span class="modal-close">&times;</span>
             <div class="modal-header">
                 <h1>Welcome To Battleship!</h1>
             </div>

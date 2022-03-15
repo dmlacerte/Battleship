@@ -1,16 +1,10 @@
+/* Background Image and Page Font */
 html {
     background: url(images/water-background.jpeg) no-repeat center center fixed; 
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
-
-    /* font-family: sans-serif; */
-    font-family: 'Syne Mono', monospace;
-}
-
-h1, h2, p[class="ship"], #bottom-buttons button {
-    text-align: center;
     font-family: 'Syne Mono', monospace;
 }
 
@@ -18,17 +12,15 @@ h1, h2, p[class="ship"], #bottom-buttons button {
     font-size: 50px;
 }
 
-#bottom-buttons button {
-    padding: 5px;
-    margin: 10px 5px;
-    font-size: 15px;
-    /* animation: 2s linear infinite blink; */
-}
-
-#bottom-buttons {
+h1, h2, p[class="ship"], #bottom-buttons button {
     text-align: center;
 }
 
+h1 {
+    margin: 15px auto;
+}
+
+/* Board Spaces */
 .board-space {
     padding: 5px;
     margin: 5px;
@@ -49,6 +41,17 @@ h1, h2, p[class="ship"], #bottom-buttons button {
     margin: 0 auto;
 }
 
+#gameboard {
+    display: flex;
+    justify-content: center;
+}
+
+#player-boards {
+    width: 40%;
+    display: inline-block;   
+}
+
+/* Board spaces change color when ships are placed on them */
 .purple-ship {
     background-color: purple;
 }
@@ -61,6 +64,7 @@ h1, h2, p[class="ship"], #bottom-buttons button {
     background-color: blue;
 }
 
+/* Board spaces change color when shots are taken */
 .miss {
     background-color: gray;;
 }
@@ -69,93 +73,102 @@ h1, h2, p[class="ship"], #bottom-buttons button {
     background-color: red;
 }
 
-#gameboard {
-    display: flex;
-    justify-content: center;
-}
-
-#player-boards {
-    /* background-color: white; */
-    width: 40%;
-    display: inline-block;   
-}
-
+/* Left and Right Ship Divs */
 #computer-ships, #player-ships {
-    /* background-color: red; */
     width: 30%;
     display: inline-block;
     margin: 0 auto;
     text-align: center;
+}
+#computer-ships h2, #player-ships h2 {
+    padding-top: 20px;
 }
 
 .computer-ship, .player-ship, .directions {
     margin: 5px;
 }
 
-  /* The Modal (background) */
-.modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-  }
-
-  /* Modal Content/Box */
-.modal-content {
-    background-color: lightgray;
-    margin: 10% auto;
-    padding: 15px;
-    border: 1px solid black;
-    width: 85%;
-  }
-  
-  /* The Close Button */
-  .close {
-    color: #aaa;
-    float: right;
-    font-size: 40px;
-    font-weight: bold;
-  }
-  
-  .close:hover,
-  .close:focus {
-    color: black;
-    cursor: default;
-  }
-
-  li {
-      margin: 2px 2px;
-  }
-
-  .modal-body h2 {
-    font-size: 20px;
-  }
-
-  /* .nav-button {
-    transition-duration: 0.5s;
-  } */
-  
-  .nav-button:hover {
-    background-color: darkblue; 
+p[class="directions"] {
     color: white;
-  }
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
 
-  .container {
+em {
+    color: red;
+}
+
+button[class="direction"] {
+    font-size: 15px;
+}
+
+/* Text added over ship images when ships are hit or sunk */
+.ship-container {
     position: relative;
     text-align: center;
-  }
+}
   
-  .centered-text {
+.centered-text {
+    font-family: 'Syne Mono', monospace;
     font-size: 70px;
     color: red;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+/* Bottom Option Buttons */
+#bottom-buttons {
+    text-align: center;
+}
+
+.nav-button:hover {
+    background-color: darkblue; 
+    color: white;
+}
+
+#bottom-buttons button {
+    padding: 5px;
+    margin: 25px 5px;
+    font-size: 15px;
     font-family: 'Syne Mono', monospace;
-  }
+}
+
+/* Game Instructions Modal */
+.modal {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: lightgray;
+    margin: 10% auto;
+    padding: 15px;
+    border: 1px solid black;
+    width: 85%;
+}
+
+.modal-close {
+    color: darkgray;
+    float: right;
+    font-size: 40px;
+    font-weight: bold;
+}
+  
+.modal-close:hover,
+.modal-close:focus {
+    cursor: default;
+    color: black;
+}
+
+li {
+      margin: 2px 2px;
+}
+
+.modal-body h2 {
+    font-size: 20px;
+}
