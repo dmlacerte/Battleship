@@ -1,3 +1,17 @@
+//GAME RULES MODAL
+//Retrieve the DOM elements
+let modal = document.querySelector("#game-rules-modal");
+let gameRulesButton = document.querySelector("#game-rules");
+let close = document.querySelector(".close");
+
+//Add functions to open and close the modal
+gameRulesButton.addEventListener("click", function() {
+    modal.style.display = "block"
+});
+close.addEventListener("click", function() {
+    modal.style.display = "none"
+});
+
 //OVERALL GAME SETUP
 //1. Set up board
 //a) Use a constructor to set up arrays of player & computer ship objects
@@ -19,15 +33,15 @@ let shipsArrComp = [];
 
 function setUpShipArrays() {
     shipsArrPlay = [
-        new Ship("destroyer", 2, "gray-ship"),
+        new Ship("destroyer", 2, "purple-ship"),
         new Ship("submarine", 3, "green-ship"),
-        new Ship("battleship", 4, "pink-ship")
+        new Ship("battleship", 4, "blue-ship")
     ];
 
     shipsArrComp = [
-        new Ship("destroyer", 2, "gray-ship"),
+        new Ship("destroyer", 2, "purple-ship"),
         new Ship("submarine", 3, "green-ship"),
-        new Ship("battleship", 4, "pink-ship")
+        new Ship("battleship", 4, "blue-ship")
     ];
 }
 
@@ -222,7 +236,8 @@ let shipIndex;
 function selectShip(ev) {
     ev.preventDefault();
 
-    let selectedShip = ev.target.parentNode.getAttribute("id");
+    let selectedShip = ev.target.parentNode.getAttribute("id").slice(3);
+    console.log(ev.target.classList[0]);
     shipIndex = shipsArrPlay.findIndex(ship => ship.name === selectedShip);
 
     if (!shipsArrPlay[shipIndex].shipSetup) {
@@ -384,17 +399,17 @@ function takeShot(ev) {
         return;
     }
 
-    if (compBoardArray[targetNum].isTaken === false && !playerWins) {
+    if (compBoardArray[targetNum].isTaken === false && !playerWins && !compWins) {
         ev.target.classList.add("miss");
         compBoardArray[targetNum].isMiss = true;
-    } else if (compBoardArray[targetNum].isTaken === true && !playerWins) {
+    } else if (compBoardArray[targetNum].isTaken === true && !playerWins && !compWins) {
         ev.target.classList.add("hit");
         compBoardArray[targetNum].isHit = true;
         let hitShip = compBoardArray[targetNum].isTakenShipName;
         checkIfSank(hitShip, targetNum, shipsArrComp);
     }
 
-    if (!playerWins) {
+    if (!playerWins && !compWins) {
         computerMoves();
     }
 }
@@ -404,9 +419,7 @@ function takeShot(ev) {
 let potentialCompMoves = [];
 
 function resetPotentialCompMoves() {
-    for (let i = 0; i < playerBoardArray.length; i++) {
-        potentialCompMoves.push(playerBoardArray[i].spaceNum);
-    }
+    potentialCompMoves = playerBoardArray.filter(space => (space.isHit === false && space.isMiss === false));
 }
 
 resetPotentialCompMoves();
@@ -420,10 +433,9 @@ function computerMoves() {
 }
 
 function computerMovesRandomly() {
-    let randomNumber = Math.floor(Math.random() * potentialCompMoves.length);
-    let randomGuess = potentialCompMoves[randomNumber];
-
-    potentialCompMoves.splice(randomNumber, 1);
+    resetPotentialCompMoves();
+    let randomIndex = Math.floor(Math.random() * potentialCompMoves.length);
+    let randomGuess = potentialCompMoves[randomIndex].spaceNum;
 
     let domSpaceID = `#pl-${randomGuess}`
     let domSpace = document.querySelector(domSpaceID);
@@ -437,8 +449,8 @@ function computerMovesRandomly() {
         playerBoardArray[randomGuess].isHit = true;
         let hitShip = playerBoardArray[randomGuess].isTakenShipName;
         checkIfSank(hitShip, randomGuess, shipsArrPlay);
+        //Set up variables to start moving strategically
         pursueHitShip = true;
-        // lastHit = randomGuess;
         firstShot = randomGuess;
         moveStartingSpace = firstShot;
         firstShotShip = hitShip;
@@ -454,6 +466,18 @@ let lastShotWasHit = false; //Set in strategic move
 let lastShotShip = ""; //Set in strategic move
 let lastDirectionIndex = 0; //Set in strategic move
 let moveStartingSpace = 0; //Set in random move, updated in strategic move
+
+function resetStrategicVariables() {
+    pursueHitShip = false;
+    isThisFirstMove = true;
+    firstShot = 0;
+    firstShotShip = "";
+    lastShot = 0;
+    lastShotWasHit = false;
+    lastShotShip = "";
+    lastDirectionIndex = 0;
+    moveStartingSpace = 0;
+}
 
 function computerMovesStrategically() {
     //Make valid directions array using moveStartingSpace.
@@ -474,10 +498,12 @@ function computerMovesStrategically() {
     if (!isThisFirstMove) {
         let firstShotShipIndex = shipsArrPlay.findIndex(ship => ship.name === firstShotShip);
         let numberOfHitsMade = shipsArrPlay[firstShotShipIndex].hitsArr.length;
+        console.log(`Numer of Hits Made: ${numberOfHitsMade}`)
         //If back on first space, and valid vertical / horizontal has not been determined, select randomly
         if (moveStartingSpace === firstShot && numberOfHitsMade === 1) {
             randNum = Math.floor(Math.random() * potentialDirectionIndexArray.length);
             directionIndex = potentialDirectionIndexArray[randNum];
+            console.log("Triggered here");
         }
         //If back on first space, and have determined valid vertical / horizontal, go in opposite direction
         if (moveStartingSpace === firstShot && numberOfHitsMade > 1) {
@@ -488,6 +514,7 @@ function computerMovesStrategically() {
             directionIndex = lastDirectionIndex;
         }
     }
+    console.log(`Direction Index: ${directionIndex}`)
 
     //Execute if first shot, set direction index as random
     if (isThisFirstMove) {
@@ -502,30 +529,6 @@ function computerMovesStrategically() {
     let domSpaceID = `#pl-${lastShot}`;
     let domSpace = document.querySelector(domSpaceID);
 
-    //Execute if shot is a hit
-    if (playerBoardArray[lastShot].isTaken === true) {
-        lastShotWasHit = true;
-        lastShotShip = playerBoardArray[lastShot].isTakenShipName;
-        //Update DOM and Array
-        domSpace.classList.remove("player-setup");
-        domSpace.classList.add("hit");
-        playerBoardArray[lastShot].isHit = true;
-        //Refresh valid directions array
-        updatePotentialDirectionIndexArray(lastShot);
-        //Check if continuing in same direction is valid (i.e., there are additional spaces in that direction, and the space hit was the same ship)
-        let spacesInDirection = playerBoardArray[lastShot][directionsArr[lastDirectionIndex].compSpaceRef];
-        let checkDirection = spacesInDirection > 0;
-        //Use to set starting space for next turn
-        if (checkDirection && (firstShotShip === lastShotShip)) {
-            moveStartingSpace = lastShot;
-        } else {
-            moveStartingSpace = firstShot;
-        }
-    }
-
-    //NEXT STEP, VALIDATE IF SHIP SUNK, IF SUNK AND OTHER SHIP HAS HITS, MOVE TO THAT SHIP
-    //MAKE SURE ARR IS UPDATED COMPLETELY AND SHOTS ARE REMOVED FROM COMP POTENTIAL MOVES ARRAY
-
     //Execute if shot is a miss
     if (playerBoardArray[lastShot].isTaken === false) {
         //Update DOM and Array
@@ -536,6 +539,48 @@ function computerMovesStrategically() {
         lastShotWasHit = false;
     }  
 
+    //Execute if shot is a hit
+    if (playerBoardArray[lastShot].isTaken === true) {
+        lastShotWasHit = true;
+        lastShotShip = playerBoardArray[lastShot].isTakenShipName;
+        //Update DOM and Array
+        domSpace.classList.remove("player-setup");
+        domSpace.classList.add("hit");
+        playerBoardArray[lastShot].isHit = true;
+        //Check if hit ship is sunk
+        let shipIsSunk = checkIfSank(lastShotShip, lastShot, shipsArrPlay);
+        if (!shipIsSunk) {
+            //If ship not sunk, refresh valid directions array
+            updatePotentialDirectionIndexArray(lastShot);
+            //Check if continuing in same direction is valid (i.e., there are additional spaces in that direction, and the space hit was the same ship)
+            let spacesInDirection = playerBoardArray[lastShot][directionsArr[lastDirectionIndex].compSpaceRef];
+            let checkDirection = spacesInDirection > 0;
+            //Use to set starting space for next turn
+            console.log(firstShotShip);
+            console.log(lastShotShip);
+            if (checkDirection && (firstShotShip === lastShotShip)) {
+                moveStartingSpace = lastShot;
+            } else {
+                moveStartingSpace = firstShot;
+            }
+        } else if (shipIsSunk) {
+            //If ship is sunk, check if there is another unsunk ship with hits. 
+            let isThereAnotherTarget = shipsArrPlay.some(ship => (ship.isSunk === false && ship.hitsArr.length > 0));
+            let otherTargetIndex;
+            if (isThereAnotherTarget) {
+                otherTargetIndex = shipsArrPlay.findIndex(ship => (ship.isSunk === false && ship.hitsArr.length > 0));
+            }
+            //If there is, target that ship. If not, back to random. 
+            if (!isThereAnotherTarget) {
+                resetStrategicVariables();
+            } else if (isThereAnotherTarget) {
+                isThisFirstMove = true;
+                firstShot = shipsArrPlay[otherTargetIndex].hitsArr[0];
+                firstShotShip = shipsArrPlay[otherTargetIndex].name;
+                moveStartingSpace = firstShot;
+            }
+        }
+    }
 }
 
 //ENDING GAME
@@ -549,6 +594,7 @@ function checkIfSank(hitShip, randomGuess, arr) {
     if (arr[hitIndex].hitsArr.length === arr[hitIndex].spaceArr.length) {
         arr[hitIndex].isSunk = true;
         checkIfWins();
+        return true;
     }
 }
 
@@ -583,7 +629,7 @@ function resetGame(ev) {
     setUpBoardArrays(compBoardArray, "cp");
 
     //Reset player board HTML
-    classList = ["player-setup", "gray-ship", "green-ship", "pink-ship", "hit", "miss"];
+    classList = ["player-setup", "purple-ship", "green-ship", "blue-ship", "hit", "miss"];
     compBoardSpaces.forEach(space => space.classList.remove(...classList));
     playerBoardSpaces.forEach(space => space.classList.remove(...classList));
 
@@ -593,10 +639,5 @@ function resetGame(ev) {
     //Reset potential computer moves 
     potentialCompMoves = [];
     resetPotentialCompMoves();
-
-    lastHit = 0;
-    hitCount = 1;
-    pursueHitShip = false;
-    pursueHitShipDirectionIndex = 0;
-    reverseDirection = false;
+    resetStrategicVariables();
 }

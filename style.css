@@ -5,10 +5,27 @@ html {
     -o-background-size: cover;
     background-size: cover;
 
-    font-family: sans-serif;
+    /* font-family: sans-serif; */
+    font-family: 'Syne Mono', monospace;
 }
 
-h1 {
+h1, h2, p[class="ship"], #bottom-buttons button {
+    text-align: center;
+    font-family: 'Syne Mono', monospace;
+}
+
+#game-title {
+    font-size: 50px;
+}
+
+#bottom-buttons button {
+    padding: 5px;
+    margin: 10px 5px;
+    font-size: 15px;
+    /* animation: 2s linear infinite blink; */
+}
+
+#bottom-buttons {
     text-align: center;
 }
 
@@ -32,28 +49,24 @@ h1 {
     margin: 0 auto;
 }
 
-.player-setup {
-    background-color: blue;
-}
-
-.gray-ship {
-    background-color: gray;
+.purple-ship {
+    background-color: purple;
 }
 
 .green-ship {
     background-color: green;
 }
 
-.pink-ship {
-    background-color: pink;
-}
-
-.hit {
-    background-color: red;
+.blue-ship {
+    background-color: blue;
 }
 
 .miss {
     background-color: gray;;
+}
+
+.hit {
+    background-color: red;
 }
 
 #gameboard {
@@ -63,14 +76,13 @@ h1 {
 
 #player-boards {
     /* background-color: white; */
-    width: 50%;
-    display: inline-block;
-    
+    width: 40%;
+    display: inline-block;   
 }
 
 #computer-ships, #player-ships {
     /* background-color: red; */
-    width: 25%;
+    width: 30%;
     display: inline-block;
     margin: 0 auto;
     text-align: center;
@@ -80,10 +92,70 @@ h1 {
     margin: 5px;
 }
 
-/* .vertical-center {
-    margin: 0;
+  /* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+
+  /* Modal Content/Box */
+.modal-content {
+    background-color: lightgray;
+    margin: 10% auto;
+    padding: 15px;
+    border: 1px solid black;
+    width: 85%;
+  }
+  
+  /* The Close Button */
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 40px;
+    font-weight: bold;
+  }
+  
+  .close:hover,
+  .close:focus {
+    color: black;
+    cursor: default;
+  }
+
+  li {
+      margin: 2px 2px;
+  }
+
+  .modal-body h2 {
+    font-size: 20px;
+  }
+
+  /* .nav-button {
+    transition-duration: 0.5s;
+  } */
+  
+  .nav-button:hover {
+    background-color: darkblue; 
+    color: white;
+  }
+
+  .container {
+    position: relative;
+    text-align: center;
+  }
+  
+  .centered-text {
+    font-size: 70px;
+    color: red;
     position: absolute;
     top: 50%;
-    -ms-transform: translateY(-50%);
-    transform: translateY(-50%);
-  } */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Syne Mono', monospace;
+  }

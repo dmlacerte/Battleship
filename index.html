@@ -7,23 +7,29 @@
     <title>Battleship</title>
     <script src="script.js" defer></script>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne+Mono&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Battleship</h1>
+    <h1 id="game-title">BATTLESHIP</h1>
     <div id="gameboard">
         <div id="computer-ships">
             <h2>Computer Ships</h2>
-            <button class="computer-ship battleship">
-                <img class="ship" src="images/battleship.png" alt="picture of battleship">
-                <p>Battleship</p>
+            <button class="battleship computer-ship">
+                <div class="battleship container">
+                    <img class="battleship ship" src="images/battleship.png" alt="picture of battleship">
+                    <div class="centered-text">HIT</div>
+                </div>
+                <p class="ship">Battleship</p>
             </button>
             <button class="computer-ship submarine">
                 <img class="ship" src="images/submarine.png" alt="picture of submarine">
-                <p>Submarine</p>
+                <p class="ship">Submarine</p>
             </button>
             <button class="computer-ship destroyer">
                 <img class="ship" src="images/destroyer.png" alt="picture of destroyer ship">
-                <p>Destroyer</p>
+                <p class="ship">Destroyer</p>
             </button>
         </div>
         <div id="player-boards">
@@ -105,17 +111,17 @@
         </div>
         <div id="player-ships">
             <h2>Player Ships</h2>
-            <button class="player-ship" class="battleship">
-                <img class="ship" src="images/battleship.png" alt="picture of battleship">
-                <p>Battleship</p>
+            <button class="battleship player-ship" id="pl-battleship">
+                <img class="battleship ship" src="images/battleship.png" alt="picture of battleship">
+                <p class="battleship ship">Battleship</p>
             </button>
-            <button class="player-ship" class="submarine">
+            <button class="player-ship" id="pl-submarine">
                 <img class="ship" src="images/submarine.png" alt="picture of submarine">
-                <p>Submarine</p>
+                <p class="ship">Submarine</p>
             </button>
-            <button class="player-ship" class="destroyer">
+            <button class="player-ship" id="pl-destroyer">
                 <img class="ship" src="images/destroyer.png" alt="picture of destroyer ship">
-                <p>Destroyer</p>
+                <p class="ship">Destroyer</p>
             </button>
             <div class="directions">
                 <div class="directions top-row">
@@ -131,7 +137,39 @@
             </div>
         </div>
     </div>
-    <button id="start-game">Start Game</button>
-    <button id="reset-game">Reset Game</button>
+    <div id="bottom-buttons">
+        <button class="nav-button" id="game-rules">Game Rules</button>
+        <button class="nav-button" id="start-game">Start Game</button>
+        <button class="nav-button" id="reset-game">Reset Game</button>
+    </div>
+    <!-- Add a Modal for the Game Rules -->
+    <div id="game-rules-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-header">
+                <h1>Welcome To Battleship!</h1>
+            </div>
+            <div class="modal-body">
+                <h2>OBJECTIVE</h2>
+                <p>Be the first to sink all of your opponent's ships!</p>
+                <h2>GETTING STARTED</h2>
+                <p>You have three ships (battleship - 4 spaces, submarine - 3 spaces, destroyer - 2 spaces) that you can place horizontally or vertically on any free board spaces. 
+                    To place your ships, follow the below steps:</p>
+                <ol>
+                    <li>Click on the picture of the ship you want to place on the board.</li>
+                    <li>Once you select a ship, use the arrow buttons to choose the direction you want the ship to go.</li>
+                    <li>Once you select a ship and direction, click the starting space for the ship on the player board.</li>
+                    <li>Repeat for each of your ships. Once you are ready to start the game, press the 'Start Game' button.</li>
+                </ol>
+                <h2>GAMEPLAY</h2>
+                <p>You and the computer take alternating shots, each calling out one shot per turn. The player moves first.</p>
+                <ol>
+                    <li>To make your shot, click one free space on the computer's board.</li>
+                    <li>Once you take a shot, the space will turn red if it's a hit, and gray if it's a miss.</li>
+                    <li>After you take your turn, the computer will take a shot. Whoever sinks all of the other player's ships first wins!</li>
+                </ol>
+              </div>
+        </div>
+    </div>
 </body>
 </html>
