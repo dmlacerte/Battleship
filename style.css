@@ -14,6 +14,7 @@ html {
 
 h1, h2, p[class="ship"], #bottom-buttons button {
     text-align: center;
+    font-family: 'Syne Mono', monospace;
 }
 
 h1 {

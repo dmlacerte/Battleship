@@ -6,11 +6,11 @@ let close = document.querySelector(".modal-close");
 
 //Add functions to open and close the modal
 gameRulesButton.addEventListener("click", function() {
-    modal.style.display = "block"
-});
+    modal.style.display = "block";
+})
 close.addEventListener("click", function() {
-    modal.style.display = "none"
-});
+    modal.style.display = "none";
+})
 
 //OVERALL GAME SETUP
 //1. Set up board
@@ -92,16 +92,14 @@ class Space {
         this.domID = "";
         this.colNum = colNum;
         this.rowNum = rowNum;
-        this.isEndCol = false;
-        this.isEndRow = false;
         this.numOfSpacesToLeft = colNum - 1;
         this.numOfSpacesToRight = 5 - colNum;
         this.numOfSpacesToTop = rowNum - 1;
         this.numOfSpacesToBottom = 5 - rowNum;
-        this.availCompShotsLeft = 0;
-        this.availCompShotsRight = 0;
-        this.availCompShotsTop = 0;
-        this.availCompShotsBottom = 0;
+        this.availCompShotsLeft = colNum - 1;
+        this.availCompShotsRight = 5 - colNum;
+        this.availCompShotsTop = rowNum - 1;
+        this.availCompShotsBottom = 5 - rowNum;
         this.isTaken = false;
         this.isTakenShipName = "";
         this.isMiss = false;
@@ -212,10 +210,6 @@ function setUpBoardArrays(arr, choosePlOrCp) {
             newSpace.spaceNum = spaceNum;
             newSpace.domID = `${choosePlOrCp}-${spaceNum}`;
             spaceNum++;
-
-            //Mark end rows & columns
-            (newSpace.colNum === 1 || newSpace.colNum === 5) ? newSpace.isEndCol = true : newSpace.isEndCol = false;
-            (newSpace.rowNum === 1 || newSpace.rowNum === 5) ? newSpace.isEndRow = true : newSpace.isEndRow = false;
 
             //Push new object into player space array
             arr.push(newSpace);
@@ -384,7 +378,7 @@ function startGame(ev) {
                 }
 
                 if (validPlacement) {
-                    setShip(firstTargetDiv, shipsArrComp[i].backgroundColor, compBoardArray, shipsArrComp, i, randomDirectionIndex);
+                    setShip(firstTargetDiv, "none", compBoardArray, shipsArrComp, i, randomDirectionIndex);
                 }
             }
         }
@@ -606,8 +600,6 @@ function checkIfSank(hitShip, randomGuess, arr) {
     } else {
         shipClass = `.pl-${hitShip}`;
     }
-    console.log(hitShip);
-    console.log(shipClass);
     document.querySelector(shipClass).innerText = "HIT";
     
     if (arr[hitIndex].hitsArr.length === arr[hitIndex].spaceArr.length) {
