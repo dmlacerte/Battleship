@@ -221,6 +221,8 @@ setUpBoardArrays(playerBoardArray, "pl");
 setUpBoardArrays(compBoardArray, "cp");
 
 //PLAYER SIDE BOARD SETUP
+let speechBubble = document.querySelector(".speech-bubble-contents");
+speechBubble.innerText = "Welcome to Battleship! Please select a player ship button on the right of the page to begin.";
 //1. Set up ship positions
 //a. Select ship to position
 const playerShips = document.querySelectorAll(".player-ship");
@@ -238,8 +240,9 @@ function selectShip(ev) {
     if (!shipsArrPlay[shipIndex].shipSetup) {
         shipsArrPlay[shipIndex].shipSelected = true;
         shipSize = shipsArrPlay[shipIndex].length;
+        speechBubble.innerText = "Now that you've selected a ship, select a direction from the arrows below."
     } else {
-        alert("You've already set the position of this ship.");
+        speechBubble.innerText = "You've already set the position of this ship, please select another.";
     }
 }
 
@@ -253,6 +256,7 @@ function selectDirection(ev) {
 
     let selectedDirection = ev.target.getAttribute("id");
     directionIndex = directionsArr.findIndex(direction => direction.name === selectedDirection);
+    speechBubble.innerText = "Now that you've selected a direction, select a starting space for your ship in the bottom player board.";
 }
 
 //c. Add event listeners to player gameboard & set up helper functions. Allow user to set down ship. 
@@ -273,10 +277,10 @@ function selectSpace(ev) {
         }
 
     } else if (shipsArrPlay[shipIndex].shipSetup) {
-        alert("You have already set up this ship, please select an available ship.");
+        speechBubble.innerText = "You have already set up this ship, please select an available ship.";
     }
     else {
-        alert("Please select a ship and a direction before selecting a starting space.");
+        speechBubble.innerText = "Please select a ship and a direction before selecting a starting space.";
     }
 
     //If ship in a valid placement, set the ship in that space.
@@ -284,7 +288,7 @@ function selectSpace(ev) {
         setShip(ev.target, shipsArrPlay[shipIndex].backgroundColor, playerBoardArray, shipsArrPlay, shipIndex, directionIndex);
         resetDefaultVariables();
     } else if (!!(directionIndex + 1)) {
-        alert("The ship will not fit in the selected direction, please choose another direction or another space.");
+        speechBubble.innerText = "The ship will not fit in the selected direction, please choose another direction or another space.";
     }
         
 }
@@ -361,6 +365,7 @@ function startGame(ev) {
     ev.preventDefault();
 
     if (playerShipsSetup === true && gameStarted === false) {
+        speechBubble.innerText = "The computer ships have been set - click on the computer board to take your first shot.";
         for (let i = 0; i < shipsArrComp.length; i++) {
             let validPlacement = false;
             let moveLengthValid = false;
@@ -384,7 +389,7 @@ function startGame(ev) {
         }
         gameStarted = true;
     } else if (playerShipsSetup === false) {
-        alert("Don't forget to set up your ships!");
+        speechBubble.innerText = "Don't forget to set up your ships!";
     }
 }
 
@@ -400,7 +405,7 @@ function takeShot(ev) {
         let targetNum = ev.target.getAttribute("id").slice(3);
 
         if (compBoardArray[targetNum].isMiss === true || compBoardArray[targetNum].isHit === true) {
-            alert("You have already selected this space, please select another.");
+            speechBubble.innerText = "You have already selected this space, please select another.";
             return;
         }
 
@@ -417,9 +422,7 @@ function takeShot(ev) {
         if (!playerWins && !compWins) {
             computerMoves();
         }
-    } else {
-        alert("You need to set up your board and select 'Start Game' before you can make a shot!");
-    }
+    } 
 }
 
 //2. Computer moves
@@ -613,10 +616,10 @@ function checkIfSank(hitShip, randomGuess, arr) {
 function checkIfWins() {
     if (shipsArrPlay.every(ship => ship.isSunk === true)) {
         compWins = true;
-        alert("Computer wins.");
+        speechBubble.innerText = "The computer wins!";
     } else if (shipsArrComp.every(ship => ship.isSunk === true)) {
         playerWins = true;
-        alert("Player wins.");
+        speechBubble.innerText = "The player wins!";
     }
 }
 
@@ -646,6 +649,7 @@ function resetGame(ev) {
     playerBoardSpaces.forEach(space => space.classList.remove(...classList));
     let hitStatus = document.querySelectorAll(".centered-text");
     hitStatus.forEach(ship => ship.innerText = "");
+    speechBubble.innerText = "Welcome to Battleship! Please select a player ship button on the right of the page to begin.";
 
     //Reset variables for player ship setup process
     playerShipsSetup = false;

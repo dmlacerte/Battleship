@@ -38,7 +38,7 @@ h1 {
 #board-divider {
     padding: 5px;
     background-color: gray;
-    width: 50%;
+    width: 70%;
     margin: 0 auto;
 }
 
@@ -48,7 +48,7 @@ h1 {
 }
 
 #player-boards {
-    width: 40%;
+    width: 30%;
     display: inline-block;   
 }
 
@@ -76,7 +76,7 @@ h1 {
 
 /* Left and Right Ship Divs */
 #computer-ships, #player-ships {
-    width: 30%;
+    width: 35%;
     display: inline-block;
     margin: 0 auto;
     text-align: center;
@@ -87,13 +87,18 @@ h1 {
 
 .computer-ship, .player-ship, .directions {
     margin: 5px;
+    font-family: 'Syne Mono', monospace;
 }
 
-p[class="directions"] {
+.directions-box {
+    margin-top: 20px;
+}
+
+/* p[class="directions"] {
     color: white;
     margin-top: 20px;
     margin-bottom: 20px;
-}
+} */
 
 em {
     color: red;
@@ -101,6 +106,47 @@ em {
 
 button[class="direction"] {
     font-size: 15px;
+}
+
+/* Styling the Captain & Speech Bubble */
+#captain-image {
+    width: 150px;
+    height: auto;
+}
+
+#speech-bubble {
+    display: flex;
+    justify-content: right;
+}
+
+#captain {
+    text-align: left;
+}
+
+.speech-bubble-contents {
+    border-radius: 5px;
+    width: 375px;
+    height: 100px;
+    margin: 20px 0px;
+    background: darkblue;
+    padding: 10px;
+    text-align: center;
+    color: white;
+    /* font-family: 'Syne Mono', monospace; */
+    position: relative;
+}
+
+.right-triangle:before {
+    content: "";
+    width: 0px;
+    height: 0px;
+    position: absolute;
+    border-left: 10px solid darkblue;
+    border-right: 10px solid transparent;
+    border-top: 10px solid darkblue;
+    border-bottom: 10px solid transparent;
+    left: 19px;
+    bottom: -19px;
 }
 
 /* Text added over ship images when ships are hit or sunk */

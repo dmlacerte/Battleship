@@ -36,6 +36,14 @@
                 </div>
                 <p class="destroyer ship">Destroyer</p>
             </button>
+            <div>
+                <div id="speech-bubble">
+                    <div class="speech-bubble-contents right-triangle"></div>
+                </div>
+                <div id="captain">
+                    <img id="captain-image" src="images/captain.png" alt="a picture of a ship captain">
+                </div>
+            </div>
         </div>
         <div id="player-boards">
             <h1 id="game-title">BATTLESHIP</h1>
@@ -114,6 +122,11 @@
                     <div class="board-space player-space" id="pl-24"></div>
                 </div>
             </div>
+            <div id="bottom-buttons">
+                <button class="nav-button" id="game-rules">Game Rules</button>
+                <button class="nav-button" id="start-game">Start Game</button>
+                <button class="nav-button" id="reset-game">Reset Game</button>
+            </div>
         </div>
         <div id="player-ships">
             <h2>Player Ships</h2>
@@ -138,9 +151,9 @@
                 </div>
                 <p class="destroyer ship">Destroyer</p>
             </button>
-            <div class="directions">
-                <p class="directions">To set the positions of your ships, first <em>select a ship</em>, then <em>select a direction arrow</em>, 
-                    then <em>select a starting space</em> from the bottom player board.</p>
+            <div class="directions-box">
+                <!-- <p class="directions">To set the positions of your ships, first <em>select a ship</em>, then <em>select a direction arrow</em>, 
+                    then <em>select a starting space</em> from the bottom player board.</p> -->
                 <div class="directions top-row">
                     <button class="direction" id="up">&#8593;</button>
                 </div>
@@ -153,11 +166,6 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div id="bottom-buttons">
-        <button class="nav-button" id="game-rules">Game Rules</button>
-        <button class="nav-button" id="start-game">Start Game</button>
-        <button class="nav-button" id="reset-game">Reset Game</button>
     </div>
     <!-- Add a Modal for the Game Rules -->
     <div id="game-rules-modal" class="modal">
