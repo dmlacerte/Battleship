@@ -240,9 +240,9 @@ function selectShip(ev) {
     if (!shipsArrPlay[shipIndex].shipSetup) {
         shipsArrPlay[shipIndex].shipSelected = true;
         shipSize = shipsArrPlay[shipIndex].length;
-        speechBubble.innerText = "Now that you've selected a ship, select a direction from the arrows below."
+        speechBubble.innerText = `You selected the ${shipsArrPlay[shipIndex].name}! Now that you've selected a ship, select a direction for your ship to face using the arrow buttons.`;
     } else {
-        speechBubble.innerText = "You've already set the position of this ship, please select another.";
+        speechBubble.innerText = `You've already set the position of the ${shipsArrPlay[shipIndex].name}, please select another ship.`;
     }
 }
 
@@ -256,7 +256,8 @@ function selectDirection(ev) {
 
     let selectedDirection = ev.target.getAttribute("id");
     directionIndex = directionsArr.findIndex(direction => direction.name === selectedDirection);
-    speechBubble.innerText = "Now that you've selected a direction, select a starting space for your ship in the bottom player board.";
+    speechBubble.innerText = `You selected the ${shipsArrPlay[shipIndex].name} facing ${directionsArr[directionIndex].name}. 
+    Now select a starting space on the bottom player board (make sure there are enough available spaces in that direction!).`;
 }
 
 //c. Add event listeners to player gameboard & set up helper functions. Allow user to set down ship. 
@@ -267,7 +268,7 @@ function selectSpace(ev) {
     ev.preventDefault();
     let validPlacement = false;
 
-    //Validate that user has selected required inputs (ship & direction), and that ship has not been set up already.
+    //Validate that user has selected required inputs (ship & direction) and ship has not been set up already.
     if (!!(directionIndex + 1) && shipsArrPlay[shipIndex].shipSelected && !shipsArrPlay[shipIndex].shipSetup) {       
         //Validate that the size of the ship will fit in the direction selected. 
         let selectedNumber = convertDomToArrID(ev.target);
@@ -287,19 +288,21 @@ function selectSpace(ev) {
     if (validPlacement) {
         setShip(ev.target, shipsArrPlay[shipIndex].backgroundColor, playerBoardArray, shipsArrPlay, shipIndex, directionIndex);
         resetDefaultVariables();
-    } else if (!!(directionIndex + 1)) {
-        speechBubble.innerText = "The ship will not fit in the selected direction, please choose another direction or another space.";
     }
-        
 }
 
 function validateMoveLength(selectedNumber, targetArray, directionIndex, shipSize) {
-    //let selectedNumber = convertDomToArrID(targetCell);
     targetArray[selectedNumber].updateSurroundingSpace(targetArray);
     let availableSpace = targetArray[selectedNumber][directionsArr[directionIndex].spaceRef];
-    if (availableSpace >= (shipSize - 1)) {
+    //If selected space is available, check that there is enough surrounding space to fit the ship
+    if (availableSpace >= (shipSize - 1) && targetArray[selectedNumber].isTaken === false) {
         return true;
     } else {
+        if (targetArray === playerBoardArray && targetArray[selectedNumber].isTaken === false) {
+            speechBubble.innerText = "The ship will not fit in the selected direction, please choose another direction or another space.";
+        } else if (targetArray === playerBoardArray && targetArray[selectedNumber].isTaken === true) {
+            speechBubble.innerText = "You have already selected this starting space, please select another space."
+        }
         return false;
     }
 }
@@ -399,8 +402,11 @@ compBoardSpaces.forEach(space => space.addEventListener("click", takeShot));
 
 //MAKING MOVES
 //1. Player moves
+let moveResultsMessage;
 function takeShot(ev) {
     ev.preventDefault();
+    moveResultsMessage = "";
+
     if (gameStarted) {
         let targetNum = ev.target.getAttribute("id").slice(3);
 
@@ -412,10 +418,12 @@ function takeShot(ev) {
         if (compBoardArray[targetNum].isTaken === false && !playerWins && !compWins) {
             ev.target.classList.add("miss");
             compBoardArray[targetNum].isMiss = true;
+            moveResultsMessage = `The player misses,`
         } else if (compBoardArray[targetNum].isTaken === true && !playerWins && !compWins) {
             ev.target.classList.add("hit");
             compBoardArray[targetNum].isHit = true;
             let hitShip = compBoardArray[targetNum].isTakenShipName;
+            moveResultsMessage = `The player hits the computer's ${hitShip},`
             checkIfSank(hitShip, targetNum, shipsArrComp);
         }
 
@@ -454,11 +462,13 @@ function computerMovesRandomly() {
     if (playerBoardArray[randomGuess].isTaken === false) {
         domSpace.classList.add("miss");
         playerBoardArray[randomGuess].isMiss = true;
+        moveResultsMessage += ` and the computer misses.`;
     } else if (playerBoardArray[randomGuess].isTaken === true) {
         domSpace.classList.remove("player-setup");
         domSpace.classList.add("hit");
         playerBoardArray[randomGuess].isHit = true;
         let hitShip = playerBoardArray[randomGuess].isTakenShipName;
+        moveResultsMessage += ` and the computer hits the player's ${hitShip}.`;
         checkIfSank(hitShip, randomGuess, shipsArrPlay);
         //Set up variables to start moving strategically
         pursueHitShip = true;
@@ -466,6 +476,7 @@ function computerMovesRandomly() {
         moveStartingSpace = firstShot;
         firstShotShip = hitShip;
     }
+    speechBubble.innerText = moveResultsMessage;
 }
 
 let pursueHitShip = false; //Set in random move
@@ -542,6 +553,7 @@ function computerMovesStrategically() {
         //Update DOM and Array
         domSpace.classList.add("miss");
         playerBoardArray[lastShot].isMiss = true;
+        moveResultsMessage += ` and the computer misses.`;
         //Reset starting space
         moveStartingSpace = firstShot;
         lastShotWasHit = false;
@@ -555,6 +567,7 @@ function computerMovesStrategically() {
         domSpace.classList.remove("player-setup");
         domSpace.classList.add("hit");
         playerBoardArray[lastShot].isHit = true;
+        moveResultsMessage += ` and the computer hits the player's ${lastShotShip}.`;
         //Check if hit ship is sunk
         let shipIsSunk = checkIfSank(lastShotShip, lastShot, shipsArrPlay);
         if (!shipIsSunk) {
@@ -587,6 +600,7 @@ function computerMovesStrategically() {
             }
         }
     }
+    speechBubble.innerText = moveResultsMessage;
 }
 
 //ENDING GAME
@@ -616,10 +630,10 @@ function checkIfSank(hitShip, randomGuess, arr) {
 function checkIfWins() {
     if (shipsArrPlay.every(ship => ship.isSunk === true)) {
         compWins = true;
-        speechBubble.innerText = "The computer wins!";
+        speechBubble.innerText = "The computer won! Click the 'Reset Game' button if you'd like to play again.";
     } else if (shipsArrComp.every(ship => ship.isSunk === true)) {
         playerWins = true;
-        speechBubble.innerText = "The player wins!";
+        speechBubble.innerText = "You won! Click the 'Reset Game' button if you'd like to play again.";
     }
 }
 
