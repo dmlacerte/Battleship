@@ -554,11 +554,12 @@ function computerMovesStrategically() {
         domSpace.classList.add("miss");
         playerBoardArray[lastShot].isMiss = true;
         moveResultsMessage += ` and the computer misses.`;
+        speechBubble.innerText = moveResultsMessage;
         //Reset starting space
         moveStartingSpace = firstShot;
         lastShotWasHit = false;
     }  
-
+    
     //Execute if shot is a hit
     if (playerBoardArray[lastShot].isTaken === true) {
         lastShotWasHit = true;
@@ -568,6 +569,7 @@ function computerMovesStrategically() {
         domSpace.classList.add("hit");
         playerBoardArray[lastShot].isHit = true;
         moveResultsMessage += ` and the computer hits the player's ${lastShotShip}.`;
+        speechBubble.innerText = moveResultsMessage;
         //Check if hit ship is sunk
         let shipIsSunk = checkIfSank(lastShotShip, lastShot, shipsArrPlay);
         if (!shipIsSunk) {
@@ -600,7 +602,6 @@ function computerMovesStrategically() {
             }
         }
     }
-    speechBubble.innerText = moveResultsMessage;
 }
 
 //ENDING GAME
@@ -628,6 +629,7 @@ function checkIfSank(hitShip, randomGuess, arr) {
 }
 
 function checkIfWins() {
+    console.log(shipsArrPlay);
     if (shipsArrPlay.every(ship => ship.isSunk === true)) {
         compWins = true;
         speechBubble.innerText = "The computer won! Click the 'Reset Game' button if you'd like to play again.";
