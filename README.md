@@ -40,7 +40,7 @@ https://dmlacerte.github.io/Battleship/
 
 **Stretch Goals**
 - [x] When a ship is hit, indicate which ship was hit on the DOM. 
-- [x] The player is able to place their own boats. 
+- [x] The player is able to place their own ships. 
 - [x] Add animations for hits / sunk ships. 
 - [x] Have the computer play strategically.
 - [ ] Have the board size be customizable (current plan is 5x5 space board). 
@@ -48,4 +48,6 @@ https://dmlacerte.github.io/Battleship/
 - [ ] Maintain game status even if user navigates away from the page.
 
 **Unsolved Problems / Major Hurdles**
-- 
+- Aside from the unresolved stretch goals above, I would also like to continue to improve the UI, particularly when the player is setting their ships. The process of setting ships could be fewer steps and more intuitive for the user. 
+- The most challenging part of the project was the computer AI, and testing that AI. It took a lot of planning and redesigning to come up with a more streamlined decision making approach for the computer. I found the most effective approach was breaking down situations into generalized decisions (i.e., do I have a ship to pursue, what space should I start the turn at, what direction should I be going in). 
+- Another challenge was taking the time to plan my approach to each logical piece of the game in order to try to make my code as streamlined and DRY as possible.  
