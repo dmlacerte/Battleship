@@ -3,10 +3,12 @@
 **Technologies Used**
 - HTML5
 - CSS3
-- JavaScript
+- Vanilla JavaScript
 
 **Project Description** <br /> <br />
 Battleship is a game of two players (in this case, one player and one computer), in which each player tries to sink the other player's ships. At the beginning of the game, each player secretly sets their own ships on a board (must be placed horizontally or vertically). Every turn, each player selects a space on the other player's board. If the other player has a ship placed on that spot, it is marked a hit. If the other player did not have a ship placed on that spot, it is marked a miss. The game ends when one player sinks all of the other player's ships. 
+<br />
+<img width="1507" alt="image" src="https://user-images.githubusercontent.com/97196460/159032708-809d1c91-5c41-4a34-a582-4bdd10607dee.png">
 
 <img width="1511" alt="image" src="https://user-images.githubusercontent.com/97196460/159019487-39d40ccf-25f3-4116-803b-4756ab6c0696.png">
 
@@ -21,7 +23,7 @@ https://dmlacerte.github.io/Battleship/
 - As a player, I want to be able to clearly see the current status of the game (computer moves, hits, misses, remaining boats), so that I can strategize my next move.
 - As a player, I want to be able to see who wins the game, so that I can finish my game or start a new game. 
 
-**Wire Frames**
+**Original Wire Frame**
 ![image](https://media.git.generalassemb.ly/user/41174/files/3ad0fe80-9baf-11ec-8943-9cc7e04a6629)
 
 **MVP Goals**
@@ -41,3 +43,4 @@ https://dmlacerte.github.io/Battleship/
 - [ ] Maintain game status even if user navigates away from the page.
 
 **Unsolved Problems / Major Hurdles**
+- 
