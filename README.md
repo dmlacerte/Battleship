@@ -5,12 +5,12 @@
 - CSS3
 - JavaScript
 
-**Project Description** 
+**Project Description** <br />
 Battleship is a game of two players (in this case, one player and one computer), in which each player tries to sink the other player's ships. At the beginning of the game, each player secretly sets their own ships on a board (must be placed horizontally or vertically). Every turn, each player selects a space on the other player's board. If the other player has a ship placed on that spot, it is marked a hit. If the other player did not have a ship placed on that spot, it is marked a miss. The game ends when one player sinks all of the other player's ships. 
 
 <img width="1511" alt="image" src="https://user-images.githubusercontent.com/97196460/159019487-39d40ccf-25f3-4116-803b-4756ab6c0696.png">
 
-**Play Game At Link Below**
+**Play Game At Link Below** <br />
 https://dmlacerte.github.io/Battleship/
 
 **User Stories**
@@ -36,8 +36,8 @@ https://dmlacerte.github.io/Battleship/
 - [x] The player is able to place their own boats. 
 - [x] Add animations for hits / sunk ships. 
 - [x] Have the computer play strategically.
-- [] Have the board size be customizable (current plan is 5x5 space board). 
-- [] Maintain a cumulative count of wins / losses. 
-- [] Maintain game status even if user navigates away from the page.
+- [ ] Have the board size be customizable (current plan is 5x5 space board). 
+- [ ] Maintain a cumulative count of wins / losses. 
+- [ ] Maintain game status even if user navigates away from the page.
 
 **Unsolved Problems / Major Hurdles**
