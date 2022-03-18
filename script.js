@@ -629,7 +629,6 @@ function checkIfSank(hitShip, randomGuess, arr) {
 }
 
 function checkIfWins() {
-    console.log(shipsArrPlay);
     if (shipsArrPlay.every(ship => ship.isSunk === true)) {
         compWins = true;
         speechBubble.innerText = "The computer won! Click the 'Reset Game' button if you'd like to play again.";

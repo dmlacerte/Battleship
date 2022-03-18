@@ -1,6 +1,7 @@
 /* Background Image and Page Font */
 html {
-    background: url(images/water-background.jpeg) no-repeat center center fixed; 
+    background: url(images/water-background.jpeg) no-repeat center center fixed;
+    /* Image Source: https://stock.adobe.com/images/underwater-landscape-realistic-vector-background/239608136 */
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -103,6 +104,7 @@ button[class="direction"] {
 }
 
 /* Styling the Captain & Speech Bubble */
+/* Reference Source: https://codingislove.com/css-speech-bubbles/ */
 #captain-image {
     width: 150px;
     height: auto;
@@ -126,24 +128,29 @@ button[class="direction"] {
     padding: 10px;
     text-align: center;
     color: white;
-    /* font-family: 'Syne Mono', monospace; */
     position: relative;
 }
 
-.right-triangle:before {
+.triangle:before {
     content: "";
-    width: 0px;
-    height: 0px;
     position: absolute;
     border-left: 10px solid darkblue;
     border-right: 10px solid transparent;
     border-top: 10px solid darkblue;
     border-bottom: 10px solid transparent;
-    left: 19px;
-    bottom: -19px;
+    left: 20px;
+    bottom: -20px;
+}
+
+#captain-and-bubble-container {
+    position: absolute;
+    bottom: 0;
+    width: 500px;
+    margin: 10px;
 }
 
 /* Text added over ship images when ships are hit or sunk */
+/* Reference Source: https://www.w3schools.com/howto/howto_css_image_text.asp */
 .ship-container {
     position: relative;
     text-align: center;
@@ -177,6 +184,7 @@ button[class="direction"] {
 }
 
 /* Game Instructions Modal */
+/* Reference Source: https://www.w3schools.com/howto/howto_css_modals.asp*/
 .modal {
     display: none;
     position: fixed;
